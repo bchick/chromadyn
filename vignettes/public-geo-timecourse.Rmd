@@ -1,0 +1,169 @@
+---
+title: "chromadyn on a public GEO timecourse"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
+```
+
+Running chromadyn on data you download yourself, in gene mode, on an RNA-seq
+series rather than ATAC.
+
+**Series:** [GSE227634](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE227634),
+the RNA-seq arm of the SuperSeries the bundled demo's ATAC data comes from
+(McDonald, Chick et al., *Immunity* 56(6):1303-1319.e5, 2023,
+doi:10.1016/j.immuni.2023.05.005). Using the companion assay of the same
+experiment is deliberate: it shows the same workflow on genes rather than
+peaks, with nothing changed but the config.
+
+## Status of this vignette
+
+The **download is verified**: `vignettes/data/download_gse227634.sh` fetches
+three files and checks them against SHA-256 digests recorded on 2026-09-22.
+Run it and you will know immediately whether GEO still serves what this
+vignette was written against.
+
+The **analysis below has not been run end to end** in this repository, because
+the merge step depends on decisions about the sample naming in the deposit
+that are better made by someone looking at the data than baked in here. The
+code is written out in full and the commands to validate it are given.
+
+**This series has three timepoints, not four.** chromadyn warns about that at
+validation, and it is worth seeing why: with three points a transient rise
+and a late rise cannot be told apart, so the split stage has little to work
+with and you should expect coarse classes. It is a good illustration of the
+warning doing its job, and a poor illustration of the five-class vocabulary.
+
+## Download
+
+```bash
+bash vignettes/data/download_gse227634.sh
+```
+
+```
+  ok  GSE227634_featureCounts.d3.mm39.vM27.txt.gz
+  ok  GSE227634_featureCounts.d5.mm39.vM27.WT.txt.gz
+  ok  GSE227634_featureCounts.d8.mm39.vM27.final.txt.gz
+```
+
+The deposit ships one featureCounts table per day rather than one matrix, so
+the first job is to merge them.
+
+## Merge into one counts matrix
+
+```{r merge}
+dir <- "vignettes/data/gse227634"
+files <- c(d3 = "GSE227634_featureCounts.d3.mm39.vM27.txt.gz",
+           d5 = "GSE227634_featureCounts.d5.mm39.vM27.WT.txt.gz",
+           d8 = "GSE227634_featureCounts.d8.mm39.vM27.final.txt.gz")
+
+read_fc <- function(path) {
+  # Line 1 is the featureCounts command banner.
+  x <- read.delim(path, skip = 1, check.names = FALSE, stringsAsFactors = FALSE)
+  m <- as.matrix(x[, -seq_len(6), drop = FALSE])
+  rownames(m) <- x$Geneid
+  # Columns are BAM paths; keep the basename without the extension.
+  colnames(m) <- sub("\\.bam$", "", basename(colnames(m)))
+  m
+}
+
+mats <- lapply(file.path(dir, files), read_fc)
+
+# Genes must be intersected, not assumed identical: the three tables were
+# produced by separate featureCounts runs.
+common <- Reduce(intersect, lapply(mats, rownames))
+counts <- do.call(cbind, lapply(mats, function(m) m[common, , drop = FALSE]))
+storage.mode(counts) <- "integer"
+dim(counts)
+```
+
+Inspect the column names before going further. They encode genotype, cell
+subset and replicate, and the encoding is not identical across the three
+files. **This is the step to do by eye rather than trust.**
+
+```{r inspect}
+colnames(counts)
+```
+
+## Build the samplesheet
+
+Keep the WT libraries, which are the ones present at every timepoint.
+
+```{r samplesheet}
+keep <- grep("WT", colnames(counts), value = TRUE)
+
+samplesheet <- data.frame(
+  sample = keep,
+  group = "WT",
+  time = c(d3 = 3, d5 = 5, d8 = 8)[sub("^.*?(d[358]).*$", "\\1", keep)],
+  replicate = sprintf("r%d", ave(seq_along(keep), keep, FUN = seq_along)),
+  stringsAsFactors = FALSE
+)
+stopifnot(!is.na(samplesheet$time), !anyDuplicated(samplesheet$sample))
+
+dir.create("vignettes/data/run", showWarnings = FALSE)
+write.table(data.frame(feature_id = rownames(counts), counts[, keep], check.names = FALSE),
+            "vignettes/data/run/counts.tsv", sep = "\t", quote = FALSE, row.names = FALSE)
+write.table(samplesheet, "vignettes/data/run/samplesheet.tsv",
+            sep = "\t", quote = FALSE, row.names = FALSE)
+```
+
+Derive `time` and `replicate` from the deposit's own metadata rather than from
+a regex over filenames wherever you can. The regex above is a convenience for
+a vignette; parsing structure out of filenames is exactly the practice the
+samplesheet exists to replace, and `docs/method.md` explains what went wrong
+when the source project did it.
+
+## Configure
+
+Gene mode: no coordinates, so BED export and annotation are skipped.
+
+```yaml
+# vignettes/data/run/config.yaml
+input:
+  samplesheet: vignettes/data/run/samplesheet.tsv
+  counts: vignettes/data/run/counts.tsv
+  features: null
+  baseline_group: shared      # unused: this series has no untreated baseline
+  time_unit: days
+
+output:
+  dir: vignettes/data/run/results
+
+cluster:
+  degpatterns:
+    minc: auto                # genes are fewer than peaks; 50 would be too high
+
+report:
+  title: "chromadyn: GSE227634 CD8+ T cell RNA timecourse"
+```
+
+## Run
+
+```bash
+pixi run --frozen snakemake --configfile vignettes/data/run/config.yaml -j 4
+```
+
+Expect validation to warn:
+
+```
+WARN time_count: only 3 timepoints. Shapes will be coarse and the transient
+                 and late classes may not separate.
+```
+
+That is the point of including this series. Read the warning, then read
+`results/clusters/<arm>_k_diagnostics.tsv` before believing any class count.
+
+## Validating this vignette
+
+```bash
+bash vignettes/data/download_gse227634.sh            # checksums, verified
+Rscript -e 'rmarkdown::render("vignettes/public-geo-timecourse.Rmd")'
+```
+
+If the checksums fail, GEO has reprocessed the deposit and the numbers here no
+longer describe what you downloaded.

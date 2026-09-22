@@ -1,0 +1,174 @@
+---
+title: "Getting started with chromadyn"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
+```
+
+This walks through the bundled demo and then through adapting it to your own
+data. Run it from the repository root.
+
+## The 60-second version
+
+```bash
+pixi install
+pixi run demo
+```
+
+That writes `results/report.html`. Everything below explains what it did.
+
+## The inputs
+
+The demo ships three files in `demo/`, derived from a published CD8+ T cell
+ATAC timecourse. `demo/PROVENANCE.md` records exactly how, including the three
+judgement calls involved.
+
+```{r inputs}
+ss <- read.delim("demo/samplesheet.tsv")
+ss
+```
+
+Nine libraries, one arm, four timepoints in days. `time` is a number; its
+units live in `config/demo.yaml` as `time_unit: days` and are never parsed
+from the value.
+
+```{r counts}
+cts <- read.delim("demo/counts.tsv", row.names = 1, check.names = FALSE)
+dim(cts)
+cts[1:3, 1:4]
+```
+
+Raw integer counts, 5,000 peaks. The row names match the name column of
+`demo/features.bed`, which is what switches on region mode.
+
+## Running it
+
+```bash
+pixi run --frozen snakemake --configfile config/demo.yaml -j 4
+```
+
+Nine rules run: validate, prefilter, transform, qc, then per arm
+differential, select_dynamic, cluster, superclusters, figures and export_bed,
+then compare_arms, report and manifest.
+
+## Reading the output
+
+Start with validation. Sixteen checks run before anything expensive.
+
+```{r validation}
+v <- read.delim("results/qc/validation_report.tsv")
+v[v$status != "PASS", ]   # empty on the demo
+```
+
+Then the PCA, before anything else. Replicates should sit on top of each
+other and timepoints should separate. On the demo they trace a clean arc from
+day 0 to day 8 with 93% of variance in two components. If yours does not,
+nothing downstream is trustworthy.
+
+Then the two gates:
+
+```{r dynamic}
+d <- read.delim(gzfile("results/differential/WT_results.tsv.gz"))
+table(significant = d$padj < 0.01, big_enough = d$range >= 0.5)
+```
+
+A feature is dynamic only if both hold. See `docs/method.md` for why.
+
+And the classes:
+
+```{r classes}
+read.delim("results/clusters/WT_supercluster_sizes.tsv")
+```
+
+```
+supercluster_label      n
+Decreasing           1435
+Transient            1064
+Sustained Increasing  320
+Late Increasing       311
+Transient Increasing  121
+```
+
+The per-feature table carries the class, the cluster it came from, how it was
+assigned, and its coordinates:
+
+```{r clusters}
+cl <- read.delim("results/clusters/WT_clusters.tsv")
+head(cl, 3)
+```
+
+## Adapting it to your data
+
+Three things to get right, in order of how often they go wrong.
+
+**Sample IDs must match exactly.** The `sample` column and the counts column
+names, character for character. Quantifiers leave suffixes on; strip them
+once, in the file, not by hand. A mismatch is a hard error that prints both
+sides.
+
+**`time` is numeric.** Put `4h` in `time_unit`, never in the column. A
+character time column sorts lexicographically to `0, 120, 15, 240, 30, 60` and
+turns every trajectory into noise; chromadyn asserts against this, but only
+because it is the most destructive thing that can happen here.
+
+**Scale `minc` to your feature count.** The default 50 suits roughly 14,000
+clustered features. Use `minc: auto` if you are not sure.
+
+Write a config that overrides only what differs:
+
+```yaml
+input:
+  samplesheet: mydata/samplesheet.tsv
+  counts: mydata/counts.tsv
+  features: null            # gene mode
+  baseline_group: shared
+  time_unit: h
+cluster:
+  degpatterns:
+    minc: auto
+```
+
+```bash
+pixi run --frozen snakemake --configfile mydata/config.yaml -j 4
+```
+
+## Two arms sharing one baseline
+
+The feature most likely to be why you are here. If two treatments share a
+single set of untreated t=0 libraries, give those rows the sentinel group:
+
+```
+sample        group   time  replicate
+unstim_r1     shared  0     r1
+unstim_r2     shared  0     r2
+egf_30m_r1    EGF     30    r1
+hrg_30m_r1    HRG     30    r1
+```
+
+Each arm is then fitted separately against the same baseline, with no arm term
+in either model, and `results/clusters/cross_arm_crosstab.tsv` tells you which
+class a feature takes under each.
+
+## When the class names come out numbered
+
+If you get `Increasing-1`, `Increasing-2` rather than names, the shape rules
+could not separate the pieces. That is information, not a failure. The log
+prints each centroid's statistics and names the parameter to adjust; usually
+`superclusters.split.cross`. `config/demo.yaml` carries a worked example, and
+`docs/parameters.md` explains it.
+
+## Debugging a single step
+
+Any script runs outside Snakemake. Each starts with a block that builds an
+equivalent `snakemake` object:
+
+```bash
+pixi run --frozen Rscript workflow/scripts/08_superclusters.R
+```
+
+Edit the `wildcards` and `configfile` in that block to point at your run.

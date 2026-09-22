@@ -1,0 +1,45 @@
+cff-version: 1.2.0
+message: "If you use chromadyn, please cite it using these metadata."
+title: "chromadyn: temporal clustering of omics timecourses"
+abstract: >-
+  A Snakemake workflow that takes a counts matrix and a samplesheet from a
+  timecourse experiment and returns dynamic features grouped into named
+  trajectory classes, with publication figures and an HTML report. Assay
+  agnostic: features may be genomic regions or genes. Supports multi-arm
+  designs sharing a single unstimulated baseline.
+type: software
+authors:
+  - given-names: Brent
+    family-names: Chick
+    affiliation: "Salk Institute for Biological Studies"
+    email: bchick@salk.edu
+repository-code: "https://github.com/bchick/chromadyn"
+license: MIT
+version: 0.1.0
+date-released: "2026-09-22"
+keywords:
+  - bioinformatics
+  - ATAC-seq
+  - RNA-seq
+  - timecourse
+  - trajectory clustering
+  - chromatin accessibility
+  - Snakemake
+references:
+  - type: article
+    title: >-
+      Canonical BAF complex activity shapes the enhancer landscape that
+      licenses CD8+ T cell effector and memory fates
+    authors:
+      - family-names: McDonald
+        given-names: "Bryan D."
+      - family-names: Chick
+        given-names: "Brent Y."
+    journal: Immunity
+    volume: 56
+    issue: 6
+    year: 2023
+    doi: 10.1016/j.immuni.2023.05.005
+    notes: >-
+      Source of the bundled demo data (GEO GSE228171). Cite this, not
+      chromadyn, when using that data itself.

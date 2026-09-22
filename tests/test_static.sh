@@ -96,11 +96,13 @@ assert_ok "every cfg() key used by a script exists in config.yaml" \
 group "Prose conventions"
 # ---------------------------------------------------------------------------
 # The pattern is written as a PCRE escape so that this file does not itself
-# contain the character it is looking for.
+# contain the character it is looking for. docs/provenance/ is exempt: those
+# files are verbatim copies of the notebooks this method came from and have to
+# stay byte-identical to their source to be worth keeping.
 emdash=$(grep -rlP '\x{2014}' --include='*.R' --include='*.smk' --include='*.yaml' \
     --include='*.md' --include='*.sh' --include='*.toml' --include='Snakefile' \
     config workflow tests demo docs README.md 2>/dev/null \
-    | grep -vE 'tests/test_static.sh' || true)
+    | grep -vE 'tests/test_static.sh|docs/provenance/' || true)
 if [[ -z "$emdash" ]]; then pass "no em dashes"
 else while IFS= read -r f; do fail "em dash in $f"; done <<< "$emdash"; fi
 
