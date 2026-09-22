@@ -3,8 +3,10 @@
 Why chromadyn does what it does. For *how* to set the thresholds, see
 [parameters.md](parameters.md).
 
-The method is not new here. It was extracted from a published MCF7 ATAC-seq
-analysis, whose notebooks are in [`provenance/`](provenance/). This document
+The method is not new here. It was extracted from an MCF7 ATAC-seq analysis
+whose notebooks will be released with its manuscript; see
+[`provenance/`](provenance/). File and line references below, such as
+`01_degpatterns_clustering.Rmd:380`, point into those notebooks. This document
 explains the reasoning behind each step and records where chromadyn departs
 from the original, and why.
 
@@ -88,7 +90,7 @@ method is, so you can see the cut you did not make.
 
 In the source analysis, the merge was done by eye. Fourteen cluster numbers
 were typed into a `tribble()` by hand (`01_degpatterns_clustering.Rmd:380-403`).
-That is the single reason the published assignment could not be reproduced
+That is the single reason the original assignment could not be reproduced
 from the code, and automating it is most of the point of this repository.
 
 ### Why shape labelling rather than cutting the tree
@@ -101,7 +103,7 @@ The reason is empirical. On the bundled T cell demo, cutting the dendrogram at
 k=3 produces a class containing one Decreasing, one Increasing and one
 Transient cluster together, because those three happen to sit in the same
 branch. Labelling each cluster by its own centroid separates all three. The
-published classes are a per-feature statement about trajectory shape, not a
+reference classes are a per-feature statement about trajectory shape, not a
 property of dendrogram structure, so reading them off the structure is the
 wrong operation. You can see this directly in
 `results/figures/<arm>_dendrogram.png`, where the tip colours are the shape
@@ -173,7 +175,7 @@ taken from the documentation.
 **`cutoff` does nothing.** It is documented everywhere as a correlation cutoff
 for merging clusters. `degPatterns` passes it to an internal function that
 declares the argument and never reads it, and the reduce step does not accept
-it at all. Setting it changes nothing, and the published analyses that set it
+it at all. Setting it changes nothing, and the original analyses that set it
 were unaffected by it. chromadyn keeps the key so old configs still parse, and
 warns if you set it. Use `n_clusters` to control cluster count.
 

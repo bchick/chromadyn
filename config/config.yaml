@@ -133,7 +133,7 @@ cluster:
     # read the code: degPatterns passes it to .select_genes(), which declares
     # the argument and never uses it, and .reduce() does not accept it at all.
     # Verified identical in DEGreport 1.36.0 and 1.42.0. Setting it changes
-    # nothing, and the published analyses that set it were unaffected by it.
+    # nothing, and the original analyses that set it were unaffected by it.
     # chromadyn warns at runtime if you set it away from this default.
     #
     # To actually control cluster count, use n_clusters below.
@@ -175,7 +175,7 @@ superclusters:
   # kmeans     k-means on cluster profiles
   # overrides  use the explicit map below and nothing else
   #
-  # `shape` is the default because the published classes it reproduces are a
+  # `shape` is the default because the reference classes it reproduces are a
   # per-feature shape classification, not a property of dendrogram structure:
   # cutting the tree at k=3 merges Transient into Decreasing on smaller inputs.
   # `hclust` and its diagnostics are still computed and emitted either way, so

@@ -6,7 +6,7 @@ uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [0.1.0] - 2026-09-22
 
-First release. Extracts a temporal-clustering method from a published MCF7
+First release. Extracts a temporal-clustering method from an MCF7
 ATAC-seq analysis into a reusable, validated Snakemake workflow.
 
 ### Added
@@ -32,7 +32,7 @@ ATAC-seq analysis into a reusable, validated Snakemake workflow.
   time. Presets for the MCF7 and T cell parameter sets.
 - Three test tiers: static checks, an end-to-end run with golden tables, and a
   correctness tier that recovers known trajectory shapes from simulated
-  counts. Plus an opt-in fidelity check against a published assignment.
+  counts. Plus an opt-in fidelity check against the original analysis's assignment.
 - A bundled demo derived from a published CD8+ T cell ATAC timecourse
   (GEO GSE228171).
 

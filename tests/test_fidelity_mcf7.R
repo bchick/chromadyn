@@ -13,13 +13,13 @@
 #
 # What this checks, and what it does not.
 #
-# The published assignment maps 14 degPatterns clusters onto classes. Cluster
+# The reference assignment maps 14 degPatterns clusters onto classes. Cluster
 # IDs are meaningful only within one run over one feature set, so they cannot
-# be compared across runs and the published override map cannot be applied to
+# be compared across runs and the reference override map cannot be applied to
 # a subsample. What IS comparable is the per-feature class label, which is a
 # statement about the shape of that feature's trajectory. So the test asks:
 # starting from the same counts and the same parameters, does chromadyn put
-# each peak in the same trajectory class the published analysis put it in?
+# each peak in the same trajectory class the original analysis put it in?
 #
 # The comparison runs on a stratified subsample, because degPatterns cost is
 # cubic and the full 12,703 peaks would take over an hour.
@@ -56,7 +56,7 @@ cat(sprintf("  source: %s\n", SRC))
 
 pub <- read.delim(PUB, stringsAsFactors = FALSE)
 stopifnot(all(c("peak_id", "supercluster", "supercluster_v2") %in% colnames(pub)))
-cat(sprintf("  published: %d peaks, %d v2 classes (%s)\n", nrow(pub),
+cat(sprintf("  reference: %d peaks, %d v2 classes (%s)\n", nrow(pub),
             length(unique(pub$supercluster_v2)),
             paste(names(sort(table(pub$supercluster_v2), decreasing = TRUE)), collapse = ", ")))
 
@@ -69,23 +69,23 @@ keep <- cd$treatment %in% c("shared", "hrg")
 cd <- cd[keep, ]
 cts <- counts(dds)[, rownames(cd), drop = FALSE]
 
-# Sample from ALL peaks, not only the published dynamic ones.
+# Sample from ALL peaks, not only the reference dynamic ones.
 #
 # An earlier version drew the subsample exclusively from the 12,703 peaks the
-# published analysis called dynamic. That looks like the efficient choice and
+# reference analysis called dynamic. That looks like the efficient choice and
 # it invalidates the comparison: DESeq2 fits its dispersion trend across the
 # features it is given, and a set composed entirely of strongly time-varying
 # peaks produces an inflated trend and much less power. Forty per cent of
-# already-published-dynamic peaks then failed to reach padj < 0.01, which
+# already-called-dynamic peaks then failed to reach padj < 0.01, which
 # says nothing about chromadyn and everything about the fixture.
 #
 # Sampling from the whole matrix keeps the dynamic fraction near what the
-# original run saw. Peaks that are in the published table are the ones the
+# original run saw. Peaks that are in the reference table are the ones the
 # comparison is made on; the rest are there to make the model honest.
 set.seed(SEED)
 pub <- pub[pub$peak_id %in% rownames(cts), ]
 sel <- sample(rownames(cts), min(N_SUBSAMPLE, nrow(cts)))
-# Guarantee every published class is represented even if the draw is unlucky.
+# Guarantee every reference class is represented even if the draw is unlucky.
 per <- split(pub$peak_id, pub$supercluster_v2)
 floor_n <- 150L
 boost <- unlist(lapply(per, function(g) {
@@ -96,7 +96,7 @@ sel <- unique(c(sel, boost))
 cts <- cts[sel, , drop = FALSE]
 truth <- setNames(pub$supercluster_v2[match(sel, pub$peak_id)], sel)
 truth <- truth[!is.na(truth)]
-cat(sprintf("  subsample: %d peaks x %d libraries, of which %d carry a published label (%.0f%%)\n",
+cat(sprintf("  subsample: %d peaks x %d libraries, of which %d carry a reference label (%.0f%%)\n",
             nrow(cts), ncol(cts), length(truth), 100 * length(truth) / nrow(cts)))
 
 sandbox <- file.path(dirname(tempdir()), sprintf("chromadyn-fidelity-mcf7-%d", Sys.getpid()))
@@ -156,7 +156,7 @@ adj_rand <- function(a, b) {
 }
 
 tab <- table(cl$truth, cl$supercluster_label)
-cat("\n  published class (rows) against chromadyn class (columns)\n\n")
+cat("\n  reference class (rows) against chromadyn class (columns)\n\n")
 print(tab)
 
 named <- intersect(rownames(tab), colnames(tab))
@@ -171,7 +171,7 @@ cat(sprintf("\n  %d peaks compared | exact label agreement %.3f | ARI %.3f\n",
 # Observed at calibration, 8,000-peak subsample, seed 42:
 #   exact per-peak label agreement  0.930
 #   adjusted Rand index             0.811
-#   published names reproduced      5 of 5
+#   reference names reproduced      5 of 5
 #   per-class: Decreasing 100%, Transient 100%, Transient Increasing 100%,
 #              Late Increasing 92%, Sustained Increasing 81%
 #
@@ -179,12 +179,12 @@ cat(sprintf("\n  %d peaks compared | exact label agreement %.3f | ARI %.3f\n",
 # a subsample, so degPatterns sees a different feature set and cuts its tree
 # differently. It is the stronger claim that matters, which is that starting
 # from raw counts and the documented parameters, chromadyn puts nine peaks in
-# ten into the same trajectory class the published analysis did.
+# ten into the same trajectory class the original analysis did.
 chk(agree >= 0.85,
     sprintf("exact per-peak label agreement is %.3f (>= 0.85)", agree))
-chk(ari >= 0.70, sprintf("ARI against the published assignment is %.3f (>= 0.70)", ari))
+chk(ari >= 0.70, sprintf("ARI against the reference assignment is %.3f (>= 0.70)", ari))
 chk(length(named) == 5,
-    sprintf("all 5 published class names are reproduced (%d): %s",
+    sprintf("all 5 reference class names are reproduced (%d): %s",
             length(named), paste(named, collapse = ", ")))
 
 # Direction fidelity is the part that must hold regardless of granularity.
@@ -193,16 +193,16 @@ falling <- cl[cl$truth == "Decreasing", ]
 bad <- sum(falling$supercluster_label != "Decreasing" &
              grepl("Increasing", falling$supercluster_label, fixed = TRUE))
 chk(bad / max(nrow(falling), 1) <= 0.05,
-    sprintf("published Decreasing peaks are not called Increasing (%d of %d)",
+    sprintf("reference Decreasing peaks are not called Increasing (%d of %d)",
             bad, nrow(falling)))
 bad2 <- sum(rising$supercluster_label == "Decreasing")
 chk(bad2 / max(nrow(rising), 1) <= 0.05,
-    sprintf("published Increasing peaks are not called Decreasing (%d of %d)",
+    sprintf("reference Increasing peaks are not called Decreasing (%d of %d)",
             bad2, nrow(rising)))
 
 for (k in rownames(tab)) {
   best <- colnames(tab)[which.max(tab[k, ])]
-  cat(sprintf("  published '%s' -> mostly '%s' (%.0f%%)\n",
+  cat(sprintf("  reference '%s' -> mostly '%s' (%.0f%%)\n",
               k, best, 100 * max(tab[k, ]) / sum(tab[k, ])))
 }
 finish()

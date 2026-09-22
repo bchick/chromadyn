@@ -9,7 +9,7 @@
 # This file is the record of what that analysis actually used. Every value
 # here appears in its params block. It is also what tests/test_fidelity_mcf7.R
 # runs, when the source project is present, to check that chromadyn still
-# reproduces the published trajectory classes.
+# reproduces the original trajectory classes.
 #
 # Set input.counts and input.samplesheet to your own copy before using it.
 # ---------------------------------------------------------------------------

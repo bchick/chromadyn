@@ -4,7 +4,7 @@
 #
 # In the source analysis this was done by eye: a dendrogram was plotted, a cut
 # was chosen by squinting at it, and fourteen cluster numbers were typed into
-# a tribble() by hand. That map is the reason the published result could not
+# a tribble() by hand. That map is the reason the original result could not
 # be reproduced from the code alone. Here the cut is made by a stated rule,
 # the dendrogram and a k-selection diagnostic are emitted so the rule can be
 # checked, and an explicit override map is still available for reproducing a
@@ -119,7 +119,7 @@ if (method == "overrides") {
 
 } else if (method == "shape") {
   # Label each cluster from its OWN centroid, then let clusters sharing a
-  # label form a class. The published classes this reproduces are a
+  # label form a class. The reference classes this reproduces are a
   # per-feature shape classification, not a property of dendrogram structure,
   # and cutting the tree instead folds Transient into Decreasing whenever the
   # two branches happen to be close.

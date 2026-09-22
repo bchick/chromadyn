@@ -26,3 +26,9 @@ Rplots.pdf
 # OS
 .DS_Store
 Thumbs.db
+
+# Kept out of the public repository until the MCF7 manuscript is released.
+# Private copies live in ../chromadyn_private/.
+docs/provenance/*.Rmd
+docs/provenance/*.R
+docs/provenance/mcf7_methods.md

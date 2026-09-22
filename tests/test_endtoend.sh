@@ -145,11 +145,13 @@ for arm in $ARMS; do
             cp "$src" "$gold"; pass "golden updated: $f"
         elif [[ ! -f "$gold" ]]; then
             cp "$src" "$gold"; warn "golden created (nothing to compare against yet): $f"
-        elif diff -q "$gold" "$src" >/dev/null; then
+        elif "${RUN[@]}" python tests/helpers/compare_tables.py "$gold" "$src" 2>"$SANDBOX/cmp.txt"; then
+            # Compared as data, not bytes: floats may differ in the last
+            # digits across CPUs and BLAS builds. See compare_tables.py.
             pass "golden matches: $f"
         else
             fail "golden differs: $f. If intended, rerun with UPDATE_GOLDEN=1"
-            diff "$gold" "$src" | head -20
+            head -10 "$SANDBOX/cmp.txt"
         fi
     done
 done
