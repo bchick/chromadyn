@@ -56,3 +56,4 @@ jobs:
           cache: true
       - run: pixi run postinstall
       - run: pixi run --frozen Rscript tests/test_correctness.R
+      - run: bash tests/test_config_paths.sh
