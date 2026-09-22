@@ -1,0 +1,57 @@
+# ---------------------------------------------------------------------------
+# Every output path chromadyn writes, as a template.
+#
+# The Snakefile reads this with yaml.safe_load and R reads it with
+# yaml::read_yaml, so a path is defined once and cannot drift between the rule
+# that declares it and the script that writes it. tests/test_static.sh resolves
+# the list on both sides and diffs them.
+#
+# Placeholders: {out} is output.dir, {arm} is the arm wildcard, {fmt} is one of
+# figures.formats, {sc} is a slugified supercluster name.
+# ---------------------------------------------------------------------------
+
+# --- qc -------------------------------------------------------------------
+validation:        "{out}/qc/validation_report.tsv"
+libsizes:          "{out}/qc/library_sizes.tsv"
+pca:               "{out}/qc/pca.{fmt}"
+sample_cor:        "{out}/qc/sample_correlation.{fmt}"
+replicate_cor:     "{out}/qc/replicate_correlation.{fmt}"
+
+# --- differential ---------------------------------------------------------
+differential:      "{out}/differential/{arm}_results.tsv.gz"
+
+# --- clusters -------------------------------------------------------------
+clusters:          "{out}/clusters/{arm}_clusters.tsv"
+cluster_profiles:  "{out}/clusters/{arm}_cluster_profiles.tsv"
+supercluster_sizes: "{out}/clusters/{arm}_supercluster_sizes.tsv"
+kdiag:             "{out}/clusters/{arm}_k_diagnostics.tsv"
+assignment_qc:     "{out}/clusters/{arm}_cluster_assignment_qc.tsv"
+bed_dir:           "{out}/clusters/bed/{arm}"
+bed_manifest:      "{out}/clusters/bed/{arm}_bed_manifest.tsv"
+bed_file:          "{out}/clusters/bed/{arm}/{arm}_{sc}.bed"
+crosstab:          "{out}/clusters/cross_arm_crosstab.tsv"
+
+# --- annotation (region mode with a txdb only) ----------------------------
+annot:             "{out}/clusters/{arm}_annotated.tsv.gz"
+
+# --- figures --------------------------------------------------------------
+# Each figure rule writes one flag file naming what it produced, so
+# figures.formats can change without an output-name explosion in the DAG.
+fig_flag:          "{out}/figures/.{arm}_figures.done"
+fig_dynamic:       "{out}/figures/{arm}_dynamic_vs_static.{fmt}"
+fig_degpatterns:   "{out}/figures/{arm}_degpatterns.{fmt}"
+fig_dendrogram:    "{out}/figures/{arm}_dendrogram.{fmt}"
+fig_traces:        "{out}/figures/{arm}_supercluster_traces.{fmt}"
+fig_ribbon:        "{out}/figures/{arm}_supercluster_ribbon.{fmt}"
+fig_heatmap:       "{out}/figures/{arm}_heatmap.{fmt}"
+
+# --- cached objects -------------------------------------------------------
+obj_dds:           "{out}/objects/dds.rds"
+obj_transformed:   "{out}/objects/transformed.rds"
+obj_differential:  "{out}/objects/{arm}_differential.rds"
+obj_degpatterns:   "{out}/objects/{arm}_degpatterns.rds"
+
+# --- provenance and report ------------------------------------------------
+prov_fragment:     "{out}/logs/prov/{rule}{arm_suffix}.json"
+report:            "{out}/report.html"
+manifest:          "{out}/run_manifest.json"

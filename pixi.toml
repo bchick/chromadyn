@@ -19,10 +19,24 @@ channels = ["conda-forge", "bioconda"]
 platforms = ["linux-64", "osx-arm64"]
 
 [tasks]
-demo = "snakemake --configfile config/demo.yaml -j 4"
-test = "bash tests/test_static.sh && bash tests/test_endtoend.sh"
-lint = "snakemake --lint"
-version = "Rscript -e 'cat(R.version.string, \"\\n\"); for (p in c(\"DESeq2\",\"DEGreport\",\"ComplexHeatmap\")) cat(p, as.character(packageVersion(p)), \"\\n\")'"
+# Completes the Bioconductor install that pixi leaves undone; see the comments
+# in workflow/envs/postinstall.sh. Idempotent, so depending on it is cheap.
+postinstall = "bash workflow/envs/postinstall.sh"
+
+[tasks.demo]
+cmd = "snakemake --configfile config/demo.yaml -j 4"
+depends-on = ["postinstall"]
+
+[tasks.test]
+cmd = "bash tests/test_static.sh && bash tests/test_endtoend.sh"
+depends-on = ["postinstall"]
+
+[tasks.lint]
+cmd = "snakemake --lint"
+
+[tasks.version]
+cmd = "Rscript -e 'cat(R.version.string, \"\\n\"); for (p in c(\"DESeq2\",\"DEGreport\",\"ComplexHeatmap\",\"GenomeInfoDbData\")) cat(p, as.character(packageVersion(p)), \"\\n\")'"
+depends-on = ["postinstall"]
 
 [dependencies]
 # Workflow engine

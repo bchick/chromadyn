@@ -1,0 +1,182 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+description: >
+  chromadyn configuration schema. Wired to Snakemake's validate() so a typo
+  fails at parse time rather than three rules in. Every key in
+  config/config.yaml appears here; tests/test_static.sh asserts that in both
+  directions, so documentation cannot drift from validation.
+
+type: object
+additionalProperties: false
+required: [input, output, filter, transform, batch_correct, differential, cluster, superclusters, annotate, figures, report]
+
+definitions:
+  nullableString:
+    anyOf: [{type: string}, {type: "null"}]
+  nullableNumber:
+    anyOf: [{type: number}, {type: "null"}]
+  nullableInteger:
+    anyOf: [{type: integer, minimum: 1}, {type: "null"}]
+
+properties:
+
+  input:
+    type: object
+    additionalProperties: false
+    required: [samplesheet, counts, features, baseline_group, time_unit]
+    properties:
+      samplesheet: {type: string, minLength: 1}
+      counts: {type: string, minLength: 1}
+      features: {$ref: "#/definitions/nullableString"}
+      baseline_group: {type: string, minLength: 1}
+      time_unit: {type: string, minLength: 1}
+
+  output:
+    type: object
+    additionalProperties: false
+    required: [dir]
+    properties:
+      dir: {type: string, minLength: 1}
+
+  filter:
+    type: object
+    additionalProperties: false
+    required: [min_mean_counts]
+    properties:
+      min_mean_counts: {type: number, minimum: 0}
+
+  transform:
+    type: object
+    additionalProperties: false
+    required: [method, blind]
+    properties:
+      method: {type: string, enum: [vst, rlog, none]}
+      blind: {type: boolean}
+
+  batch_correct:
+    type: object
+    additionalProperties: false
+    required: [method, column]
+    properties:
+      method: {type: string, enum: [none, limma]}
+      column: {type: string, minLength: 1}
+
+  differential:
+    type: object
+    additionalProperties: false
+    required: [method, fdr, min_range, min_contrasts, design, reduced, top_n]
+    properties:
+      method: {type: string, enum: [lrt, wald_union, none]}
+      fdr: {type: number, exclusiveMinimum: 0, maximum: 1}
+      # On the transformed scale, not a log2 fold change. Unbounded above
+      # because the scale depends on transform.method.
+      min_range: {type: number, minimum: 0}
+      min_contrasts: {type: integer, minimum: 1}
+      design: {type: string, pattern: "^~"}
+      reduced: {type: string, pattern: "^~"}
+      top_n: {type: integer, minimum: 1}
+
+  cluster:
+    type: object
+    additionalProperties: false
+    required: [method, seed, max_features, assign_min_cor, degpatterns]
+    properties:
+      method: {type: string, enum: [degpatterns, kmeans, mclust]}
+      seed: {type: integer}
+      max_features: {type: integer, minimum: 1}
+      assign_min_cor: {type: number, minimum: -1, maximum: 1}
+      degpatterns:
+        type: object
+        additionalProperties: false
+        required: [minc, cutoff, n_clusters, summarize, consensus_cluster, reduce, skip_dendrogram, scale, col]
+        properties:
+          # Integer, or the string "auto" for max(15, round(nrow / 100)).
+          minc:
+            anyOf:
+              - {type: integer, minimum: 1}
+              - {type: string, enum: [auto]}
+          cutoff: {type: number}
+          n_clusters: {$ref: "#/definitions/nullableInteger"}
+          summarize: {type: string, minLength: 1}
+          consensus_cluster: {type: boolean}
+          reduce: {type: boolean}
+          skip_dendrogram: {type: boolean}
+          scale: {type: boolean}
+          col: {$ref: "#/definitions/nullableString"}
+
+  superclusters:
+    type: object
+    additionalProperties: false
+    required: [method, k, h, linkage, auto_label, split, overrides]
+    # k and h are alternative ways to cut the same tree. Both null is fine
+    # (method: shape ignores them); both set is a contradiction. The Snakefile
+    # repeats this check to produce a readable error, since jsonschema's
+    # message for a failed `not` is close to useless.
+    not:
+      required: [k, h]
+      properties:
+        k: {not: {type: "null"}}
+        h: {not: {type: "null"}}
+    properties:
+      method: {type: string, enum: [shape, hclust, kmeans, overrides]}
+      k: {$ref: "#/definitions/nullableInteger"}
+      h: {$ref: "#/definitions/nullableNumber"}
+      linkage:
+        type: string
+        enum: [complete, average, single, ward.D, ward.D2, mcquitty, median, centroid]
+      auto_label: {type: string, enum: [shape, shape_simple, numeric, none]}
+      split:
+        anyOf:
+          - type: "null"
+          - type: object
+            additionalProperties: false
+            required: [target, k, seed, late_ratio_cutoff, late_peak_fraction, mid_time, cross]
+            properties:
+              target: {type: string, minLength: 1}
+              k: {type: integer, minimum: 2}
+              seed: {type: integer}
+              late_ratio_cutoff: {type: number}
+              late_peak_fraction: {type: number, minimum: 0, maximum: 1}
+              mid_time: {$ref: "#/definitions/nullableNumber"}
+              cross: {type: number}
+      # {cluster_id: name}, for example {14: Decreasing, 8: Decreasing}.
+      #
+      # Deliberately only checked as "object or null" here. YAML parses the
+      # keys as integers and JSON Schema property names are strings, so
+      # patternProperties raises a TypeError on the integer keys rather than
+      # rejecting them. The real validation lives in the Snakefile, which
+      # normalizes keys to strings and checks every value is a non-empty
+      # string; coverage of every observed cluster is checked in R at
+      # 08_superclusters (guardrail 9.5), where the cluster IDs exist.
+      overrides:
+        anyOf:
+          - type: "null"
+          - type: object
+            minProperties: 1
+
+  annotate:
+    type: object
+    additionalProperties: false
+    required: [txdb, orgdb, tss_window]
+    properties:
+      txdb: {$ref: "#/definitions/nullableString"}
+      orgdb: {$ref: "#/definitions/nullableString"}
+      tss_window: {type: integer, minimum: 0}
+
+  figures:
+    type: object
+    additionalProperties: false
+    required: [formats, dpi]
+    properties:
+      formats:
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items: {type: string, enum: [pdf, svg, png]}
+      dpi: {type: integer, minimum: 1}
+
+  report:
+    type: object
+    additionalProperties: false
+    required: [title]
+    properties:
+      title: {type: string}

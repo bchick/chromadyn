@@ -1,0 +1,215 @@
+# ---------------------------------------------------------------------------
+# chromadyn configuration. Every threshold in the pipeline appears here.
+#
+# No script may contain a bare numeric threshold; tests/test_static.sh enforces
+# that. If you find yourself wanting to tweak a number in an R file, the number
+# belongs in this file instead.
+#
+# Comments explain WHY a key exists, not what its name already says.
+# ---------------------------------------------------------------------------
+
+input:
+  # One row per library. `sample` must match a counts column name exactly;
+  # a mismatch is a hard error listing both sides, never a silent subset.
+  samplesheet: config/samplesheet.tsv
+
+  # .tsv, .csv, .rds matrix, or a serialized SummarizedExperiment. Rows are
+  # features, columns are samples. Raw integer counts unless transform.method
+  # is `none`.
+  counts: data/counts.tsv
+
+  # BED3 or BED6 of feature coordinates. Supplying it switches on region mode
+  # (BED export per supercluster, optional genomic annotation). Leave null for
+  # gene mode: the region-only rules are then skipped silently, not failed.
+  features: null
+
+  # Rows whose `group` equals this sentinel join EVERY treatment arm. This is
+  # how a multi-arm timecourse with one shared unstimulated baseline is
+  # expressed: the same t=0 libraries serve as the zero timepoint in each arm,
+  # and each arm is fit separately against them. Set to a group name that does
+  # not occur if every arm has its own baseline.
+  baseline_group: shared
+
+  # Label only. Never parsed, never used to convert anything. The `time` column
+  # is numeric and is interpreted exactly as written.
+  time_unit: min
+
+output:
+  dir: results
+
+filter:
+  # rowMeans of RAW counts, applied before any transform. Drops features too
+  # sparse for the assay to have measured, which otherwise dominate the
+  # dispersion fit and waste clustering capacity on noise.
+  min_mean_counts: 10
+
+transform:
+  # vst | rlog | none. `none` means the input is already normalized; the
+  # differential step is then limited to method `none` as well.
+  method: vst
+  # Blind to the design. TRUE keeps the transform from being informed by the
+  # comparison it will later be used to test, which matters because the same
+  # matrix feeds both selection and clustering.
+  blind: true
+
+batch_correct:
+  # none | limma. limma::removeBatchEffect on the transformed matrix, before
+  # clustering only. Off by default: it silently makes the transform
+  # design-aware, so turn it on deliberately and say so in your methods.
+  method: none
+  column: batch
+
+differential:
+  # lrt         one model per arm, ~ time against ~ 1, the shipped method
+  # wald_union  per-timepoint contrasts against t=0, union at `fdr`
+  # none        no model; rank by variance and take `top_n`
+  method: lrt
+
+  # padj cutoff for the LRT, or per-contrast FDR for wald_union.
+  fdr: 0.01
+
+  # Minimum range of per-timepoint replicate means, on the TRANSFORMED scale.
+  # This is the second of two gates: the LRT says a feature changed, this says
+  # it changed by enough to be worth a trajectory. With large n the LRT alone
+  # returns thousands of features whose total excursion is a few percent.
+  #
+  # NOT a log2 fold change. The source analysis called this `lrt_lfc`, which is
+  # wrong and will cause you to set it an order of magnitude off. See
+  # docs/method.md.
+  min_range: 0.5
+
+  # wald_union only: keep features significant in at least N timepoint
+  # contrasts. 1 is the plain union; raising it demands sustained change.
+  min_contrasts: 1
+
+  # Add covariates here, for example "~ batch + time". `reduced` must be
+  # `design` with the time term removed, or the LRT tests the wrong thing.
+  design: "~ time"
+  reduced: "~ 1"
+
+  # method: none only. Rank by variance across timepoint means, take N.
+  top_n: 5000
+
+cluster:
+  method: degpatterns       # degpatterns | kmeans | mclust
+  seed: 42
+
+  # degPatterns builds an all-pairs correlation matrix, so cost is quadratic:
+  # roughly 20 s at 2.5k features and tens of minutes plus many GB at 30k.
+  # Above this cap, chromadyn subsamples with the recorded seed, clusters, then
+  # assigns the remainder by correlation to cluster centroids and reports both
+  # counts. See docs/parameters.md for the measured timing table.
+  max_features: 12000
+
+  # Minimum correlation for a held-out feature to join a centroid's cluster.
+  # Below it the feature is left Unassigned rather than forced somewhere.
+  assign_min_cor: 0.6
+
+  degpatterns:
+    # Minimum cluster size. DEGreport DROPS the members of smaller clusters, it
+    # does not merge them, and the test is strictly greater than. Scale this
+    # with feature count: 50 is meaningless on 2,000 features. `auto` sets
+    # max(15, round(nrow / 100)).
+    minc: 50
+
+    # INERT. Kept only so configs ported from the source notebooks still parse.
+    #
+    # Documented everywhere as "correlation cutoff for merging clusters", but
+    # read the code: degPatterns passes it to .select_genes(), which declares
+    # the argument and never uses it, and .reduce() does not accept it at all.
+    # Verified identical in DEGreport 1.36.0 and 1.42.0. Setting it changes
+    # nothing, and the published analyses that set it were unaffected by it.
+    # chromadyn warns at runtime if you set it away from this default.
+    #
+    # To actually control cluster count, use n_clusters below.
+    cutoff: 0.5
+
+    # Number of clusters to cut the tree into. null lets DEGreport cut at the
+    # diana divisive coefficient, which is what the source analyses did and is
+    # therefore the default. Requires DEGreport >= 1.40; chromadyn fails with a
+    # clear message if you set it on an older version.
+    n_clusters: null
+
+    summarize: merge
+    consensus_cluster: false
+
+    # NOT a cluster merger, despite the name. .reduce() walks each cluster and
+    # drops any feature that is a boxplot outlier in any single column. It
+    # shrinks clusters, it never combines them. Off by default because it
+    # discards real features on the strength of one timepoint.
+    reduce: false
+
+    # degPatterns >= 1.40 skips building the display dendrogram by default.
+    # Set false only if you want deg$hr populated for your own plotting;
+    # chromadyn draws its own dendrogram from cluster profiles regardless.
+    skip_dendrogram: true
+
+    # degPatterns z-scores internally. Leave true and do not pre-scale the
+    # input, or features get scaled twice and the trajectories flatten.
+    scale: true
+
+    # Second grouping variable. null means each arm is clustered in its own
+    # run; set it to a samplesheet column to fit arms jointly with a facet.
+    col: null
+
+superclusters:
+  # How degPatterns clusters are collapsed into named trajectory classes.
+  #
+  # shape      label each cluster by the shape of its own mean z-profile
+  # hclust     cut a dendrogram of cluster profiles at k or h
+  # kmeans     k-means on cluster profiles
+  # overrides  use the explicit map below and nothing else
+  #
+  # `shape` is the default because the published classes it reproduces are a
+  # per-feature shape classification, not a property of dendrogram structure:
+  # cutting the tree at k=3 merges Transient into Decreasing on smaller inputs.
+  # `hclust` and its diagnostics are still computed and emitted either way, so
+  # you can see the tree you did not cut.
+  method: shape
+
+  k: 3                      # hclust/kmeans: number of classes. Exactly one of k, h.
+  h: null                   # hclust: cut height instead of k.
+  linkage: complete
+  auto_label: shape         # shape | shape_simple | numeric | none
+
+  # Optional second stage. One broad class often contains several distinct
+  # shapes (an "Increasing" group that is really transient, sustained and late
+  # increases); this splits it by k-means on per-feature timepoint z-profiles
+  # and names the pieces from their centroids. null disables it.
+  split:
+    target: Increasing
+    k: 3
+    seed: 42
+    # Centroid value at the last timepoint divided by its maximum. Below this,
+    # the class peaked and came back down: Transient Increasing.
+    late_ratio_cutoff: 0.5
+    # A centroid peaking at or after this fraction of the last timepoint is
+    # late rather than sustained. 0.5 reproduces the source threshold of 120
+    # on a 0/30/60/120/240 grid.
+    late_peak_fraction: 0.5
+    # Timepoint treated as the middle of the grid. null derives it from the
+    # data, which is what you want unless your sampling is very uneven.
+    mid_time: null
+    # Value a centroid must be below at mid_time to count as a late riser.
+    # Profiles are z-scores, so 0 is the feature's own mean.
+    cross: 0.0
+
+  # {cluster_id: name} map that overrides everything above. This is how a
+  # hand-made assignment from a previous analysis is reproduced exactly. The
+  # map must cover every cluster or the run fails naming the ones it missed.
+  # Cluster IDs are only meaningful within one run on one feature set.
+  overrides: null
+
+annotate:
+  # Both null means no genomic annotation, and the annotate rule is skipped.
+  # Annotation packages are not in pixi.toml; install the one your genome needs.
+  txdb: null                # e.g. TxDb.Hsapiens.UCSC.hg38.knownGene
+  orgdb: null               # e.g. org.Hs.eg.db
+  tss_window: 3000
+
+figures:
+  formats: [pdf, svg, png]
+  dpi: 288
+
+report:
+  title: "chromadyn results"
