@@ -1,0 +1,48 @@
+# ---------------------------------------------------------------------------
+# CD8+ T cell ATAC timecourse, WT arm. GSE228171, Immunity 2023.
+#
+# The parameters used by the reanalysis project's own temporal clustering
+# (scripts/07_atac_temporal_clustering.R), recorded so that run can be
+# repeated here. These are NOT chromadyn's defaults, and the difference is
+# the point: the original selected features by median absolute deviation and
+# clustered with reduce enabled, where chromadyn's default path is an LRT
+# plus a range gate on the transformed scale.
+#
+# There is deliberately no automated fidelity test against that run. The two
+# select features by different criteria, so any disagreement would be
+# uninterpretable: you could not tell a regression from the selection step
+# doing its job. The external cross-check lives in tests/test_fidelity_mcf7.R,
+# where the comparison is like for like. Regression on this dataset is covered
+# by the tier 2 golden tables, which run on the demo derived from it.
+# ---------------------------------------------------------------------------
+input:
+  samplesheet: demo/samplesheet.tsv
+  counts: demo/counts.tsv
+  features: demo/features.bed
+  baseline_group: shared
+  time_unit: days
+
+differential:
+  method: none                  # rank by variance rather than model time
+  top_n: 5000                   # the original's n_top
+  min_range: 0                  # no effect-size gate; selection was by MAD alone
+
+cluster:
+  degpatterns:
+    minc: 50
+    cutoff: 0.7                 # the original's value. Inert in DEGreport, so
+                                # it changes nothing; recorded for fidelity.
+    reduce: true                # the original enabled it. NOT a cluster
+                                # merger: it drops per-cluster outliers.
+
+superclusters:
+  method: shape
+  shape:
+    cross: 0.0
+  split:
+    target: Increasing
+    k: 3
+    cross: -0.5                 # see config/demo.yaml for why this grid needs it
+
+report:
+  title: "chromadyn: CD8+ T cell ATAC timecourse (WT)"
