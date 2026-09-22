@@ -25,10 +25,23 @@ while IFS= read -r f; do CONFIGS+=("$f"); done < <(find config/presets -name '*.
 # ---------------------------------------------------------------------------
 group "Workflow parses"
 # ---------------------------------------------------------------------------
-assert_ok "snakemake --lint" snake --lint --configfile config/demo.yaml
-assert_ok "dry run on the demo config" snake -n --configfile config/demo.yaml
-assert_ok "dry run on the default config" snake -n --config \
-    "input={'samplesheet':'demo/samplesheet.tsv','counts':'demo/counts.tsv','features':null,'baseline_group':'shared','time_unit':'days'}"
+# Dry runs go into an empty output directory. Against an existing results/,
+# Snakemake does not schedule jobs whose outputs are present and so never
+# checks their inputs: a missing input can pass here and fail on a clean CI
+# runner, which is exactly what happened once.
+DRY="$(mktemp -d "${TMPDIR:-/tmp}/chromadyn-dry-XXXXXX")"
+trap 'rm -rf "$DRY"' EXIT
+printf "output:\n  dir: %s/demo\n" "$DRY" > "$DRY/demo_out.yaml"
+py tests/helpers/merge_config.py config/demo.yaml "$DRY/demo_out.yaml" > "$DRY/demo.yaml"
+# Gene mode as a real config file. Passing it with --config does not work:
+# the value is not parsed as YAML there, so `null` arrives as the string
+# "null" and the workflow goes looking for a BED file of that name.
+printf "input:\n  features: null\noutput:\n  dir: %s/gene\n" "$DRY" > "$DRY/gene_out.yaml"
+py tests/helpers/merge_config.py config/demo.yaml "$DRY/gene_out.yaml" > "$DRY/gene.yaml"
+
+assert_ok "snakemake --lint" snake --lint --configfile "$DRY/demo.yaml"
+assert_ok "dry run, demo, into an empty directory" snake -n --configfile "$DRY/demo.yaml"
+assert_ok "dry run, gene mode, into an empty directory" snake -n --configfile "$DRY/gene.yaml"
 
 # ---------------------------------------------------------------------------
 group "Every script: path exists"
