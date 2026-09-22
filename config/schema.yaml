@@ -107,7 +107,7 @@ properties:
   superclusters:
     type: object
     additionalProperties: false
-    required: [method, k, h, linkage, auto_label, split, overrides]
+    required: [method, k, h, linkage, auto_label, shape, split, overrides]
     # k and h are alternative ways to cut the same tree. Both null is fine
     # (method: shape ignores them); both set is a contradiction. The Snakefile
     # repeats this check to produce a readable error, since jsonschema's
@@ -125,12 +125,19 @@ properties:
         type: string
         enum: [complete, average, single, ward.D, ward.D2, mcquitty, median, centroid]
       auto_label: {type: string, enum: [shape, shape_simple, numeric, none]}
+      shape:
+        type: object
+        additionalProperties: false
+        required: [mid_fraction, cross]
+        properties:
+          mid_fraction: {type: number, exclusiveMinimum: 0, maximum: 1}
+          cross: {type: number}
       split:
         anyOf:
           - type: "null"
           - type: object
             additionalProperties: false
-            required: [target, k, seed, late_ratio_cutoff, late_peak_fraction, mid_time, cross]
+            required: [target, k, seed, late_ratio_cutoff, late_peak_fraction, mid_time, mid_fraction, cross]
             properties:
               target: {type: string, minLength: 1}
               k: {type: integer, minimum: 2}
@@ -138,6 +145,7 @@ properties:
               late_ratio_cutoff: {type: number}
               late_peak_fraction: {type: number, minimum: 0, maximum: 1}
               mid_time: {$ref: "#/definitions/nullableNumber"}
+              mid_fraction: {type: number, exclusiveMinimum: 0, maximum: 1}
               cross: {type: number}
       # {cluster_id: name}, for example {14: Decreasing, 8: Decreasing}.
       #

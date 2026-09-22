@@ -187,6 +187,16 @@ superclusters:
   linkage: complete
   auto_label: shape         # shape | shape_simple | numeric | none
 
+  # Stage 1 labelling thresholds, used when method is `shape`, and also to
+  # name the groups when method is hclust or kmeans. Separate from `split`
+  # below because the two stages answer different questions: stage 1 asks
+  # "does this go up, go down, or spike and come back", stage 2 asks "among
+  # the ones going up, which rise early, late, or throughout". A margin that
+  # sharpens the second can destroy the first.
+  shape:
+    mid_fraction: 0.25
+    cross: 0.0
+
   # Optional second stage. One broad class often contains several distinct
   # shapes (an "Increasing" group that is really transient, sustained and late
   # increases); this splits it by k-means on per-feature timepoint z-profiles
@@ -202,11 +212,24 @@ superclusters:
     # late rather than sustained. 0.5 reproduces the source threshold of 120
     # on a 0/30/60/120/240 grid.
     late_peak_fraction: 0.5
-    # Timepoint treated as the middle of the grid. null derives it from the
-    # data, which is what you want unless your sampling is very uneven.
+    # Timepoint treated as the middle of the grid, used to tell a late rise
+    # from a sustained one. null derives it as the observed timepoint nearest
+    # mid_fraction of the last timepoint.
     mid_time: null
+    # 0.25 of the last timepoint. On a 0/30/60/120/240 grid that is exactly
+    # 60, the value the source analysis hard-coded. Deriving it as the middle
+    # post-baseline INDEX instead looks equivalent on that grid and is not:
+    # the grid is log spaced, so its middle index is a quarter of the way
+    # through in time, while on a near-linear grid the middle index is more
+    # than half way through and the late-versus-sustained test stops working.
+    mid_fraction: 0.25
     # Value a centroid must be below at mid_time to count as a late riser.
-    # Profiles are z-scores, so 0 is the feature's own mean.
+    # Profiles are z-scores, so 0 is the feature's own mean and a negative
+    # value is a margin below it. 0.0 is the source analysis's threshold and
+    # is kept as the default for fidelity, but it is often too permissive:
+    # a sustained riser that is merely AT its mean early looks late. If the
+    # split reports that labelling was ambiguous, this is usually the knob.
+    # See docs/parameters.md for a worked example on the bundled demo.
     cross: 0.0
 
   # {cluster_id: name} map that overrides everything above. This is how a

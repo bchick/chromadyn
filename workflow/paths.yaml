@@ -51,6 +51,7 @@ obj_dds:           "{out}/objects/dds.rds"
 obj_transformed:   "{out}/objects/transformed.rds"
 obj_differential:  "{out}/objects/{arm}_differential.rds"
 obj_degpatterns:   "{out}/objects/{arm}_degpatterns.rds"
+obj_supercluster:  "{out}/objects/{arm}_supercluster_fit.rds"
 
 # --- provenance and report ------------------------------------------------
 prov_fragment:     "{out}/logs/prov/{rule}{arm_suffix}.json"

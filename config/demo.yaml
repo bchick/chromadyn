@@ -18,3 +18,17 @@ output:
 
 report:
   title: "chromadyn demo: CD8+ T cell ATAC timecourse (GSE228171)"
+
+superclusters:
+  split:
+    # Tuned for this dataset, and a worked example of why the knob exists.
+    #
+    # The demo grid is 0/3/5/8 days, near-linear, where the shipped default of
+    # cross: 0.0 cannot separate a sustained rise from a late one: both sit
+    # near their own mean at day 3 (-0.02 and -0.91), so both satisfy
+    # "below the mean at mid" and the labeller reports the ambiguity and falls
+    # back to numbers. A margin of -0.5 separates them correctly.
+    #
+    # The default stays 0.0 because that is the value the source analysis
+    # used, and config/presets/mcf7_as28.yaml has to reproduce it.
+    cross: -0.5

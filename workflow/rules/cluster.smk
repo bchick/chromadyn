@@ -24,3 +24,27 @@ rule cluster:
         "../envs/r.yaml"
     script:
         "../scripts/07_cluster.R"
+
+
+rule superclusters:
+    """Collapse clusters into named trajectory classes, and split one of them.
+
+    Emits the dendrogram fit and a k-selection diagnostic whatever the
+    assignment method is, so the cut that was taken can be checked against
+    the cut that was not.
+    """
+    input:
+        obj=P("obj_degpatterns"),
+        **({"features": config["input"]["features"]} if REGION_MODE else {}),
+    output:
+        clusters=P("clusters"),
+        profiles=P("cluster_profiles"),
+        sizes=P("supercluster_sizes"),
+        kdiag=P("kdiag"),
+        fit=P("obj_supercluster"),
+    log:
+        f"{OUT}/logs/superclusters_{{arm}}.log",
+    conda:
+        "../envs/r.yaml"
+    script:
+        "../scripts/08_superclusters.R"

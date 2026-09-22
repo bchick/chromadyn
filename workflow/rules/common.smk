@@ -158,4 +158,6 @@ def final_targets(_):
         targets += expand(P(key), fmt=config["figures"]["formats"])
     targets += expand(P("differential"), arm=ARMS)
     targets += expand(P("assignment_qc"), arm=ARMS)
+    for key in ("clusters", "cluster_profiles", "supercluster_sizes", "kdiag"):
+        targets += expand(P(key), arm=ARMS)
     return targets
