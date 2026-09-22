@@ -97,6 +97,12 @@ classify_centroids <- function(centroids,
                                times = as.numeric(colnames(centroids))) {
   scheme <- match.arg(scheme)
   vocab <- match.arg(vocab)
+  # Force the default now, before the shape_simple branch below reassigns
+  # vocab_key. R evaluates a default argument lazily, at first use, so
+  # leaving this until then would re-run match.arg() against a value it does
+  # not accept.
+  force(unique_labels)
+  vocab_key <- vocab
   p <- utils::modifyList(
     list(late_ratio_cutoff = 0.5, late_peak_fraction = 0.5, mid_fraction = 0.25,
          mid_time = NULL, cross = 0, simple_cutoff = 0.7),
@@ -129,13 +135,13 @@ classify_centroids <- function(centroids,
     st$slot <- ifelse(
       !is.na(st$late_ratio) & st$late_ratio >= p$simple_cutoff, "up",
       ifelse(st$peak_time <= refs$first, "down", "up"))
-    vocab <- "simple"
+    vocab_key <- "simple"
   }
 
   st$label <- if (scheme %in% c("numeric", "none")) {
     NA_character_
   } else {
-    unname(CD_VOCAB[[vocab]][st$slot])
+    unname(CD_VOCAB[[vocab_key]][st$slot])
   }
 
   # Fallback, kept as the source had it: if the rules cannot name the

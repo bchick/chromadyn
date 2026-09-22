@@ -131,4 +131,15 @@ else
     skip "lintr not installed"
 fi
 
+# ---------------------------------------------------------------------------
+group "Repository hygiene"
+# ---------------------------------------------------------------------------
+# Rplots.pdf appears whenever R draws with no device open and is pure noise
+# in a diff. It got committed once already.
+if git ls-files --error-unmatch Rplots.pdf >/dev/null 2>&1; then
+    fail "Rplots.pdf is tracked; it is an artifact, not a file"
+else
+    pass "no stray Rplots.pdf"
+fi
+
 summary

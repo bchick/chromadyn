@@ -17,6 +17,8 @@ tests/fixtures/mcf7/
 tests/fixtures/tcell/
 
 # R
+# R's default device drops this whenever a plot is drawn with no device open.
+Rplots.pdf
 .Rhistory
 .RData
 .Rapp.history
