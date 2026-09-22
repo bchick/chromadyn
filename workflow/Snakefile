@@ -66,3 +66,5 @@ rule all:
 
 
 include: "rules/qc.smk"
+include: "rules/differential.smk"
+include: "rules/cluster.smk"

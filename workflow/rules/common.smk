@@ -156,4 +156,6 @@ def final_targets(_):
     targets = [P("validation"), P("libsizes"), P("replicate_cor_tsv")]
     for key in ("pca", "sample_cor", "replicate_cor"):
         targets += expand(P(key), fmt=config["figures"]["formats"])
+    targets += expand(P("differential"), arm=ARMS)
+    targets += expand(P("assignment_qc"), arm=ARMS)
     return targets

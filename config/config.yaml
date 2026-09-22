@@ -99,12 +99,22 @@ cluster:
   method: degpatterns       # degpatterns | kmeans | mclust
   seed: 42
 
-  # degPatterns builds an all-pairs correlation matrix, so cost is quadratic:
-  # roughly 20 s at 2.5k features and tens of minutes plus many GB at 30k.
-  # Above this cap, chromadyn subsamples with the recorded seed, clusters, then
-  # assigns the remainder by correlation to cluster centroids and reports both
-  # counts. See docs/parameters.md for the measured timing table.
-  max_features: 12000
+  # Above this many features, cluster a stratified subsample and assign the
+  # remainder by correlation to cluster centroids, reporting both counts.
+  #
+  # degPatterns cost is CUBIC in feature count, not quadratic. Measured here
+  # on 9 libraries, R 4.4.3, DEGreport 1.42.0:
+  #
+  #     1,500 features      7 s
+  #     3,251 features     72 s
+  #     4,004 features    144 s
+  #
+  # which fits n^3.06 and extrapolates to roughly 8 minutes at 6,000, an hour
+  # at 12,000, and about 18 hours at 30,000. The default is set where a full
+  # run still finishes over a coffee. Raise it if you would rather wait than
+  # subsample; the subsample path recovers the same cluster structure on the
+  # demo (8 clusters either way, 1,750 of 1,751 held-out features assigned).
+  max_features: 6000
 
   # Minimum correlation for a held-out feature to join a centroid's cluster.
   # Below it the feature is left Unassigned rather than forced somewhere.
