@@ -79,7 +79,8 @@ if (length(times) < 3L) {
        length(times), paste(times, collapse = ", "))
 } else if (length(times) < 4L) {
   warn("time_count",
-       "only 3 timepoints. Shapes will be coarse and the transient and late classes may not separate.")
+       paste0("only 3 timepoints. Shapes will be coarse and the transient and ",
+              "late classes may not separate."))
 } else {
   pass("time_count", "%d timepoints", length(times))
 }
@@ -97,7 +98,9 @@ if (!length(arms)) {
 }
 bad_names <- arms[!grepl("^[A-Za-z0-9._+-]+$", arms)]
 if (length(bad_names)) {
-  fail("arm_names", "arm name(s) unusable in filenames: %s. Use letters, digits, dot, underscore, plus or hyphen.",
+  fail("arm_names",
+       paste0("arm name(s) unusable in filenames: %s. Use letters, digits, dot, ",
+              "underscore, plus or hyphen."),
        paste(bad_names, collapse = ", "))
 } else {
   pass("arm_names", "arm names are safe as filename components")
@@ -126,13 +129,16 @@ for (arm in arms) {
            arm)
     } else {
       warn(sprintf("arm_%s_replication", arm),
-           "arm '%s' has one library per timepoint. Fine for differential.method: %s, but no dispersion is estimated.",
+           paste0("arm '%s' has one library per timepoint. Fine for ",
+                  "differential.method: %s, but no dispersion is estimated."),
            arm, cfg("differential.method"))
     }
   } else if (min(tab) == 1L) {
     warn(sprintf("arm_%s_replication", arm),
-         "arm '%s' has %d replicate(s) at some timepoints and %d at others (%s). DESeq2 handles this, but the sparse timepoints carry less weight.",
-         arm, min(tab), max(tab), paste(sprintf("t=%s:n=%d", names(tab), as.integer(tab)), collapse = ", "))
+         paste0("arm '%s' has %d replicate(s) at some timepoints and %d at others ",
+                "(%s). DESeq2 handles this, but the sparse timepoints carry less weight."),
+         arm, min(tab), max(tab),
+         paste(sprintf("t=%s:n=%d", names(tab), as.integer(tab)), collapse = ", "))
   } else {
     pass(sprintf("arm_%s_replication", arm),
          "arm '%s': %d libraries, %s", arm, nrow(sub),
@@ -142,7 +148,8 @@ for (arm in arms) {
 
 # --- counts sanity ----------------------------------------------------------
 if (anyNA(cts)) {
-  fail("counts_na", "counts contain %d NA value(s). chromadyn will not impute them.", sum(is.na(cts)))
+  fail("counts_na", "counts contain %d NA value(s). chromadyn will not impute them.",
+       sum(is.na(cts)))
 } else {
   pass("counts_na", "no NA values in counts")
 }

@@ -67,6 +67,11 @@ r-cluster = "*"
 r-rmarkdown = "*"
 r-digest = "*"
 
+# Linters used by tests/test_static.sh. Present so tier 1 is fully exercised
+# in CI rather than silently skipping.
+shellcheck = "*"
+r-lintr = "*"
+
 # Annotation packages (TxDb.*, org.*) are deliberately NOT here. They are large,
 # genome-specific, and only needed when annotate.txdb is set. docs/parameters.md
 # says which to add for which genome.

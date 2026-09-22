@@ -4,7 +4,7 @@
 # formatters, and a divergence would not surface until a rule wrote its output
 # somewhere the next rule does not look.
 set -uo pipefail
-cd "$(dirname "${BASH_SOURCE[0]}")/../.."
+cd "$(dirname "${BASH_SOURCE[0]}")/../.." || exit 1
 
 pyout=$(python - <<'PY'
 import yaml

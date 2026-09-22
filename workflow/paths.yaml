@@ -16,6 +16,7 @@ libsizes:          "{out}/qc/library_sizes.tsv"
 pca:               "{out}/qc/pca.{fmt}"
 sample_cor:        "{out}/qc/sample_correlation.{fmt}"
 replicate_cor:     "{out}/qc/replicate_correlation.{fmt}"
+replicate_cor_tsv: "{out}/qc/replicate_correlation.tsv"
 
 # --- differential ---------------------------------------------------------
 differential:      "{out}/differential/{arm}_results.tsv.gz"

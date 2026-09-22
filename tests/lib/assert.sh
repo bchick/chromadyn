@@ -14,6 +14,10 @@
 #
 # End every suite with:  summary; exit $?
 # ---------------------------------------------------------------------------
+# shellcheck shell=bash
+# REPO_ROOT and the colour variables are consumed by the suites that source
+# this file, so shellcheck cannot see their use from here.
+# shellcheck disable=SC2034
 
 set -uo pipefail
 

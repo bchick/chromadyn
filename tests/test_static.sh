@@ -9,7 +9,7 @@
 # ---------------------------------------------------------------------------
 
 source "$(dirname "${BASH_SOURCE[0]}")/lib/assert.sh"
-cd "$REPO_ROOT"
+cd "$REPO_ROOT" || exit 1
 
 # Run R and snakemake through pixi when we are not already inside the env.
 if [[ -n "${CONDA_PREFIX:-}" && -x "${CONDA_PREFIX}/bin/Rscript" ]]; then
@@ -114,10 +114,10 @@ else while IFS= read -r f; do fail "AI attribution in $f"; done <<< "$ai"; fi
 # ---------------------------------------------------------------------------
 group "Optional linters"
 # ---------------------------------------------------------------------------
-if command -v shellcheck >/dev/null 2>&1; then
+if "${RUN[@]}" shellcheck --version >/dev/null 2>&1; then
     for f in tests/*.sh tests/lib/*.sh tests/helpers/*.sh workflow/envs/*.sh; do
         [[ -e "$f" ]] || continue
-        assert_ok "shellcheck $f" shellcheck -S warning "$f"
+        assert_ok "shellcheck $f" "${RUN[@]}" shellcheck -S warning "$f"
     done
 else
     skip "shellcheck not installed"

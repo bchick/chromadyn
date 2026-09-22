@@ -260,7 +260,8 @@ read_samplesheet <- function(path) {
   ss$time <- suppressWarnings(as.numeric(ss$time))
   bad <- which(is.na(ss$time))
   cd_assert(length(bad) == 0L,
-            "samplesheet: `time` must be numeric; row(s) %s are not.\nUnits go in config input.time_unit, never in the value.",
+            paste0("samplesheet: `time` must be numeric; row(s) %s are not.\n",
+                   "Units go in config input.time_unit, never in the value."),
             paste(bad, collapse = ", "))
   ss
 }
@@ -279,9 +280,11 @@ read_bed <- function(path, feature_ids = NULL) {
     out$name <- as.character(bed[[4]])
   } else {
     cd_assert(!is.null(feature_ids),
-              "features BED %s is BED3, so rows map to features by order, but no feature IDs were supplied.", path)
+              paste0("features BED %s is BED3, so rows map to features by order, ",
+                     "but no feature IDs were supplied."), path)
     cd_assert(nrow(out) == length(feature_ids),
-              "features BED %s is BED3 with %d rows but there are %d features; order mapping is ambiguous.",
+              paste0("features BED %s is BED3 with %d rows but there are %d ",
+                     "features; order mapping is ambiguous."),
               path, nrow(out), length(feature_ids))
     out$name <- feature_ids
   }

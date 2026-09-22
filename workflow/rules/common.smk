@@ -153,5 +153,7 @@ def final_targets(_):
     rather than by wrapping the rule definitions in `if` blocks. That keeps
     every rule visible to the linter and to the tier 1 static test.
     """
-    targets = [P("validation"), P("libsizes")]
+    targets = [P("validation"), P("libsizes"), P("replicate_cor_tsv")]
+    for key in ("pca", "sample_cor", "replicate_cor"):
+        targets += expand(P(key), fmt=config["figures"]["formats"])
     return targets
