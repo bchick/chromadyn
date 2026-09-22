@@ -1,9 +1,8 @@
 #===============================================================================
 # theme.R: the one place chromadyn defines how a figure looks.
 #===============================================================================
-# Ported from mcf7_project/scripts/project_colors.R, with the dataset-specific
-# palettes removed (ligand_colors, timepoint_colors, br2_condition_colors,
-# experiment_colors, treatment_colors). What is kept is generic: the PRGn
+# Ported from the source project's shared palette file, with its
+# dataset-specific palettes removed. What is kept is generic: the PRGn
 # diverging system, the cnsplots geometry, and supercluster_colors.
 #
 # ONE DEFINITION PER PALETTE. The project this came from redefined a palette in

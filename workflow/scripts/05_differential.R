@@ -2,7 +2,7 @@
 # 05_differential.R: does each feature change over time, within one arm?
 #
 # One model per arm, fitted against the baseline libraries the arm shares with
-# every other arm. There is no ligand or arm term anywhere: see docs/method.md
+# every other arm. There is no treatment or arm term anywhere: see docs/method.md
 # for why a shared-baseline multi-arm timecourse is analysed as separate
 # per-arm fits rather than as one model with an interaction.
 #

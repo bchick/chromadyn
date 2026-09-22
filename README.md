@@ -40,7 +40,7 @@ correlation clusters into a handful of named, interpretable trajectory classes.
 | Column | Required | Meaning |
 |---|---|---|
 | `sample` | yes | Unique ID. **Must match a counts column name exactly.** |
-| `group` | yes | Treatment arm, for example `EGF` or `HRG`. The sentinel value (default `shared`) joins that row to every arm. |
+| `group` | yes | Treatment arm, for example `DrugA` or `DrugB`. The sentinel value (default `shared`) joins that row to every arm. |
 | `time` | yes | Numeric timepoint. Units are declared in the config, never parsed from the value. |
 | `replicate` | yes | Replicate label within group and time. |
 | `batch` | no | Used only when `batch_correct` is enabled. |
@@ -52,10 +52,10 @@ every arm, and each arm is fitted separately against them.
 
 ```
 sample              group   time  replicate
-unstim_r1           shared  0     r1
-unstim_r2           shared  0     r2
-egf_30m_r1          EGF     30    r1
-hrg_30m_r1          HRG     30    r1
+vehicle_r1          shared  0     r1
+vehicle_r2          shared  0     r2
+drugA_2h_r1         DrugA   2     r1
+drugB_2h_r1         DrugB   2     r1
 ```
 
 ### Counts

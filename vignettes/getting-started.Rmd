@@ -144,10 +144,10 @@ single set of untreated t=0 libraries, give those rows the sentinel group:
 
 ```
 sample        group   time  replicate
-unstim_r1     shared  0     r1
-unstim_r2     shared  0     r2
-egf_30m_r1    EGF     30    r1
-hrg_30m_r1    HRG     30    r1
+vehicle_r1    shared  0     r1
+vehicle_r2    shared  0     r2
+drugA_2h_r1   DrugA   2     r1
+drugB_2h_r1   DrugB   2     r1
 ```
 
 Each arm is then fitted separately against the same baseline, with no arm term

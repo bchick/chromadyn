@@ -8,7 +8,7 @@
 #
 # Ported and generalized from the source notebooks. The generalizations are
 # the point: the originals hard-coded one experiment's timepoint grid, one
-# experiment's ligand colours, and an assumption of exactly two replicates.
+# experiment's treatment colours, and an assumption of exactly two replicates.
 # ---------------------------------------------------------------------------
 
 suppressPackageStartupMessages({
@@ -30,7 +30,7 @@ if (!exists("theme_publication", mode = "function")) {
 #'
 #' Ported from 00_preprocessing.Rmd:416-435. That version fixed the time factor
 #' to c("0m","30m","60m","120m","240m") and the colour scale to this project's
-#' three ligands, so it could not be reused. Here the grid comes from the data
+#' three treatments, so it could not be reused. Here the grid comes from the data
 #' and the palette from the group count.
 #'
 #' @param mat Transformed matrix, features x samples.

@@ -1,9 +1,10 @@
 # ---------------------------------------------------------------------------
 # 11_compare_arms.R: which class does a feature land in under each arm?
 #
-# In the source project this question ("which HRG-Transient peaks are
-# EGF-Increasing") was answered by reading two tables side by side and typing
-# the counts into a third. It is a join, so it is a rule.
+# In the source project this question ("which features that are Transient
+# under one treatment are Increasing under the other") was answered by reading
+# two tables side by side and typing the counts into a third. It is a join, so
+# it is a rule.
 #
 # Degrades to a single-arm summary rather than failing, because a one-arm
 # timecourse is a perfectly ordinary input and `rule all` should not depend
