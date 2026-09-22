@@ -138,6 +138,174 @@ plot_sample_correlation <- function(mat, coldata, method = "pearson") {
     theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
 }
 
-`%||%` <- function(a, b) if (is.null(a)) b else a
+
+
+# --- trajectories -----------------------------------------------------------
+
+#' Long-format z-profiles joined to their trajectory class.
+#'
+#' The source plots read deg$normalized, which only contains the features
+#' degPatterns itself clustered. On the subsample path that silently omits
+#' every feature assigned by correlation, which can be most of them. This
+#' builds the same long frame from the per-feature profiles and the final
+#' assignment, so a figure always shows what the cluster table says.
+supercluster_long <- function(profiles, assignment, include_unassigned = FALSE) {
+  a <- assignment[!is.na(assignment$supercluster_label), , drop = FALSE]
+  if (!include_unassigned) a <- a[a$supercluster_label != "Unassigned", , drop = FALSE]
+  a <- a[a$feature_id %in% rownames(profiles), , drop = FALSE]
+  times <- as.numeric(colnames(profiles))
+  m <- profiles[a$feature_id, , drop = FALSE]
+  data.frame(
+    feature_id = rep(a$feature_id, times = length(times)),
+    cluster = rep(a$cluster, times = length(times)),
+    supercluster_label = rep(a$supercluster_label, times = length(times)),
+    time = rep(times, each = nrow(a)),
+    value = as.vector(m),
+    stringsAsFactors = FALSE
+  )
+}
+
+#' Facet labels carrying the class size, in canonical order.
+.sc_facets <- function(long) {
+  n <- tapply(long$feature_id, long$supercluster_label, function(x) length(unique(x)))
+  lv <- levels(supercluster_factor(names(n)))
+  lab <- stats::setNames(sprintf("%s (n = %s)", lv, format(n[lv], big.mark = ",", trim = TRUE)), lv)
+  factor(lab[long$supercluster_label], levels = unname(lab))
+}
+
+.time_breaks <- function(times) sort(unique(as.numeric(times)))
+
+#' Per-feature spaghetti, a boxplot per timepoint, and a loess trend.
+#'
+#' Ported from 01_degpatterns_clustering.Rmd:414-446. The original fixed the
+#' class order to three MCF7 names, fixed the x breaks to 0/30/60/120/240 and
+#' fixed the boxplot width to 8, which is meaningless on any other grid: on a
+#' 0 to 8 day timecourse a width of 8 is the entire axis.
+plot_supercluster_traces <- function(long, title = NULL, time_unit = NULL) {
+  long$facet <- .sc_facets(long)
+  brk <- .time_breaks(long$time)
+  box_w <- max(diff(range(brk)) / 20, .Machine$double.eps)
+  ggplot(long, aes(x = .data$time, y = .data$value)) +
+    geom_line(aes(group = .data$feature_id), alpha = 0.05, linewidth = 0.3) +
+    geom_boxplot(aes(group = .data$time), width = box_w, outlier.shape = NA,
+                 fill = NA, linewidth = 0.4) +
+    stat_smooth(aes(group = 1), method = "loess", formula = y ~ x, se = FALSE,
+                colour = col_accent, linewidth = 1) +
+    facet_wrap(~facet, nrow = 1) +
+    scale_x_continuous(breaks = brk) +
+    labs(x = if (is.null(time_unit)) "Time" else sprintf("Time (%s)", time_unit),
+         y = "Z-score", title = title) +
+    theme_publication()
+}
+
+#' The publication panel: median line over interquartile and 10-90 bands.
+#'
+#' Ported from 01_degpatterns_clustering.Rmd:468-514, with the same
+#' generalizations, and taking its colours from lib/theme.R rather than from
+#' a local three-class vector that disagreed with the shared palette.
+plot_supercluster_ribbon <- function(long, title = NULL, time_unit = NULL) {
+  long$sc <- supercluster_factor(long$supercluster_label)
+  long$facet <- .sc_facets(long)
+  brk <- .time_breaks(long$time)
+  key <- interaction(long$sc, long$time, drop = TRUE)
+  agg <- do.call(rbind, lapply(split(seq_len(nrow(long)), key), function(i) {
+    v <- long$value[i]
+    data.frame(sc = long$sc[i][1], facet = long$facet[i][1], time = long$time[i][1],
+               median = stats::median(v, na.rm = TRUE),
+               q25 = stats::quantile(v, 0.25, na.rm = TRUE),
+               q75 = stats::quantile(v, 0.75, na.rm = TRUE),
+               q10 = stats::quantile(v, 0.10, na.rm = TRUE),
+               q90 = stats::quantile(v, 0.90, na.rm = TRUE))
+  }))
+  pal <- supercluster_palette(levels(long$sc))
+  ggplot(agg, aes(x = .data$time)) +
+    geom_ribbon(aes(ymin = .data$q10, ymax = .data$q90, fill = .data$sc), alpha = 0.15) +
+    geom_ribbon(aes(ymin = .data$q25, ymax = .data$q75, fill = .data$sc), alpha = 0.30) +
+    geom_line(aes(y = .data$median, colour = .data$sc), linewidth = 1) +
+    geom_point(aes(y = .data$median, colour = .data$sc), size = 1.6) +
+    facet_wrap(~facet, nrow = 1) +
+    scale_colour_manual(values = pal) +
+    scale_fill_manual(values = pal) +
+    scale_x_continuous(breaks = brk) +
+    labs(x = if (is.null(time_unit)) "Time" else sprintf("Time (%s)", time_unit),
+         y = "Z-score", title = title) +
+    theme_publication() +
+    theme(legend.position = "none")
+}
+
+#' Dendrogram of cluster mean profiles, with the cut drawn.
+#'
+#' Ported from 01_degpatterns_clustering.Rmd:332-354, which returned a base
+#' plot and drew no cut, because in that analysis the cut was made by eye
+#' afterwards. Drawing the height that was actually used is the point: it is
+#' what makes the assignment checkable.
+plot_cluster_dendrogram <- function(hc, cluster_to_sc = NULL, cut_height = NULL,
+                                    title = NULL) {
+  dd <- stats::as.dendrogram(hc)
+  ord <- stats::order.dendrogram(dd)
+  labs <- hc$labels[ord]
+  seg <- ggdendro_segments(hc)
+  tip <- data.frame(x = seq_along(labs), label = labs,
+                    sc = if (is.null(cluster_to_sc)) NA_character_
+                         else unname(cluster_to_sc[labs]),
+                    stringsAsFactors = FALSE)
+  p <- ggplot() +
+    geom_segment(data = seg, aes(x = .data$x, y = .data$y,
+                                 xend = .data$xend, yend = .data$yend),
+                 linewidth = 0.3) +
+    scale_x_continuous(breaks = tip$x, labels = tip$label) +
+    labs(x = "Cluster", y = "Height", title = title, colour = NULL) +
+    theme_publication()
+  if (!is.null(cut_height)) {
+    p <- p + geom_hline(yintercept = cut_height, linetype = "dashed",
+                        colour = col_accent, linewidth = 0.4)
+  }
+  if (!all(is.na(tip$sc))) {
+    p <- p + geom_point(data = tip, aes(x = .data$x, y = 0, colour = .data$sc), size = 2.2) +
+      scale_colour_manual(values = supercluster_palette(unique(tip$sc)))
+  }
+  p
+}
+
+#' Dendrogram segments as a data frame, so the tree can be drawn in ggplot
+#' without taking a dependency on ggdendro for one function.
+ggdendro_segments <- function(hc) {
+  merge <- hc$merge
+  height <- hc$height
+  ord <- order(stats::order.dendrogram(stats::as.dendrogram(hc)))
+  xpos <- numeric(nrow(merge))
+  ypos <- numeric(nrow(merge))
+  segs <- list()
+  leaf_x <- function(i) ord[-i]
+  for (k in seq_len(nrow(merge))) {
+    kids <- merge[k, ]
+    cx <- numeric(2); cy <- numeric(2)
+    for (j in 1:2) {
+      if (kids[j] < 0) { cx[j] <- leaf_x(kids[j]); cy[j] <- 0 }
+      else { cx[j] <- xpos[kids[j]]; cy[j] <- ypos[kids[j]] }
+    }
+    xpos[k] <- mean(cx); ypos[k] <- height[k]
+    segs[[length(segs) + 1L]] <- data.frame(
+      x = c(cx[1], cx[1], cx[2]), y = c(cy[1], height[k], height[k]),
+      xend = c(cx[1], cx[2], cx[2]), yend = c(height[k], height[k], cy[2]))
+  }
+  do.call(rbind, segs)
+}
+
+#' Dynamic against static features, as a labelled stacked bar.
+plot_dynamic_vs_static <- function(res, arm, title = NULL) {
+  df <- data.frame(
+    arm = arm,
+    status = factor(c("Dynamic", "Static"), levels = c("Static", "Dynamic")),
+    n = c(sum(res$dynamic), sum(!res$dynamic))
+  )
+  df$label <- format(df$n, big.mark = ",", trim = TRUE)
+  ggplot(df, aes(x = .data$arm, y = .data$n, fill = .data$status)) +
+    geom_col(width = 0.55) +
+    geom_text(aes(label = .data$label), position = position_stack(vjust = 0.5), size = 2.6) +
+    scale_fill_manual(values = c(Static = "#BBBBBB", Dynamic = cat_palette[1])) +
+    labs(x = NULL, y = "Features", fill = NULL, title = title) +
+    theme_publication()
+}
 
 invisible(TRUE)

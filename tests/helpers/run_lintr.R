@@ -14,9 +14,6 @@
 # one of those as an undefined global. The dependency is enforced at runtime
 # instead: lib/plots.R refuses to load if theme.R has not been sourced.
 #
-# lib/theme.R is excluded entirely: it is a port of an external file, and
-# reformatting it would make diffing against its source pointless.
-#
 # .lintr is DCF, so it cannot carry this explanation itself: a leading comment
 # block makes read.dcf() reject the file.
 lints <- lintr::lint_dir("workflow/scripts")

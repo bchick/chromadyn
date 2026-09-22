@@ -503,4 +503,72 @@ timepoint_palette <- function(times) {
   stats::setNames(cols[seq_along(times)], as.character(times))
 }
 
+#' Symmetric diverging colour ramp for a z-scored matrix.
+#'
+#' Clipped at the 99th percentile of |z| so that a handful of extreme features
+#' do not flatten the whole heatmap to one colour.
+circlize_ramp <- function(z, q = 0.99) {
+  lim <- stats::quantile(abs(z[is.finite(z)]), q, na.rm = TRUE)
+  if (!is.finite(lim) || lim <= 0) lim <- 1
+  if (requireNamespace("circlize", quietly = TRUE)) {
+    circlize::colorRamp2(c(-lim, 0, lim), c(prgn$purple, prgn$neutral, prgn$green))
+  } else {
+    grDevices::colorRampPalette(c(prgn$purple, prgn$neutral, prgn$green))(64)
+  }
+}
+
+#' save_figure() for grid graphics, such as a ComplexHeatmap.
+#'
+#' ggsave() cannot take a Heatmap object, so this opens the same devices with
+#' the same pixels-at-72-dpi geometry and draws into them. `draw_fn` is called
+#' with no arguments and must do the drawing.
+save_grid_figure <- function(draw_fn, path,
+                             width = FIG_PANEL, height = FIG_PANEL,
+                             formats = c("pdf", "svg", "png"),
+                             dpi = 288, bg = "white") {
+  stem <- sub("\\.(pdf|svg|png)$", "", path, ignore.case = TRUE)
+  dir.create(dirname(stem), recursive = TRUE, showWarnings = FALSE)
+  w_in <- fig_px(width)
+  h_in <- fig_px(height)
+
+  supported <- c("pdf", "svg", "png")
+  bad <- setdiff(formats, supported)
+  if (length(bad)) {
+    stop("save_grid_figure(): unsupported format(s): ", paste(bad, collapse = ", "),
+         ". Supported: ", paste(supported, collapse = ", "), call. = FALSE)
+  }
+
+  open_device <- function(fmt, out) {
+    switch(
+      fmt,
+      pdf = grDevices::cairo_pdf(out, width = w_in, height = h_in, bg = bg),
+      svg = if (requireNamespace("svglite", quietly = TRUE)) {
+        svglite::svglite(out, width = w_in, height = h_in, bg = bg)
+      } else {
+        grDevices::svg(out, width = w_in, height = h_in, bg = bg)
+      },
+      png = if (requireNamespace("ragg", quietly = TRUE)) {
+        ragg::agg_png(out, width = w_in, height = h_in, units = "in",
+                      res = dpi, background = bg)
+      } else {
+        grDevices::png(out, width = w_in, height = h_in, units = "in", res = dpi, bg = bg)
+      }
+    )
+  }
+
+  written <- character(0)
+  for (fmt in formats) {
+    out <- paste0(stem, ".", fmt)
+    open_device(fmt, out)
+    # Close THIS device whatever happens, without accumulating handlers across
+    # iterations: an on.exit(add = TRUE) inside the loop would fire once per
+    # format at function exit and close devices this call never opened.
+    ok <- tryCatch({ draw_fn(); TRUE },
+                   error = function(e) { grDevices::dev.off(); stop(e) })
+    if (isTRUE(ok)) grDevices::dev.off()
+    written <- c(written, out)
+  }
+  invisible(written)
+}
+
 invisible(TRUE)

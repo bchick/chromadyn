@@ -22,4 +22,3 @@ linters: linters_with_defaults(
     paren_body_linter          = NULL,
     function_left_parentheses_linter = NULL
   )
-exclusions: list("lib/theme.R" = Inf)

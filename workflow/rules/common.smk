@@ -160,4 +160,5 @@ def final_targets(_):
     targets += expand(P("assignment_qc"), arm=ARMS)
     for key in ("clusters", "cluster_profiles", "supercluster_sizes", "kdiag"):
         targets += expand(P(key), arm=ARMS)
+    targets += expand(P("fig_flag"), arm=ARMS)
     return targets

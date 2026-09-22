@@ -48,3 +48,26 @@ rule superclusters:
         "../envs/r.yaml"
     script:
         "../scripts/08_superclusters.R"
+
+
+rule figures:
+    """Every per-arm figure.
+
+    Declares a single flag file rather than every format of every panel, so
+    that changing figures.formats does not multiply the DAG. The flag lists
+    what was written.
+    """
+    input:
+        cluster_obj=P("obj_degpatterns"),
+        fit=P("obj_supercluster"),
+        results=P("differential"),
+        transformed=P("obj_transformed"),
+        dds=P("obj_dds"),
+    output:
+        flag=P("fig_flag"),
+    log:
+        f"{OUT}/logs/figures_{{arm}}.log",
+    conda:
+        "../envs/r.yaml"
+    script:
+        "../scripts/10_figures.R"
