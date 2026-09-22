@@ -161,4 +161,9 @@ def final_targets(_):
     for key in ("clusters", "cluster_profiles", "supercluster_sizes", "kdiag"):
         targets += expand(P(key), arm=ARMS)
     targets += expand(P("fig_flag"), arm=ARMS)
+    if REGION_MODE:
+        targets += expand(P("bed_manifest"), arm=ARMS)
+    if ANNOTATE:
+        targets += expand(P("annot"), arm=ARMS)
+    targets += [P("crosstab"), P("report"), P("manifest")]
     return targets

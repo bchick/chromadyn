@@ -1,0 +1,163 @@
+---
+title: "`r params$title`"
+date: "`r format(Sys.time(), '%Y-%m-%d %H:%M')`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+    df_print: kable
+params:
+  title: "chromadyn results"
+  results_dir: "results"
+  arms: !r character()
+  time_unit: "min"
+  config: !r list()
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+R <- params$results_dir
+arms <- params$arms
+rd <- function(...) {
+  p <- file.path(R, ...)
+  if (file.exists(p)) utils::read.delim(p, check.names = FALSE, stringsAsFactors = FALSE) else NULL
+}
+fig <- function(name) {
+  p <- file.path(R, "figures", paste0(name, ".png"))
+  if (file.exists(p)) knitr::include_graphics(p) else invisible(NULL)
+}
+```
+
+chromadyn took a counts matrix over a timecourse and returned the features
+that change over time, grouped by the shape of that change.
+
+## Inputs
+
+```{r inputs}
+cfg <- params$config
+knitr::kable(data.frame(
+  setting = c("counts", "samplesheet", "features", "time unit", "arms",
+              "transform", "differential", "FDR", "min_range",
+              "cluster minc", "supercluster method"),
+  value = c(cfg$input$counts, cfg$input$samplesheet,
+            if (is.null(cfg$input$features)) "none (gene mode)" else cfg$input$features,
+            params$time_unit, paste(arms, collapse = ", "),
+            cfg$transform$method, cfg$differential$method,
+            cfg$differential$fdr, cfg$differential$min_range,
+            as.character(cfg$cluster$degpatterns$minc), cfg$superclusters$method)
+))
+```
+
+## Validation
+
+```{r validation}
+v <- rd("qc", "validation_report.tsv")
+if (!is.null(v)) {
+  n <- table(factor(v$status, levels = c("PASS", "WARN", "FAIL")))
+  cat(sprintf("%d checks: %d PASS, %d WARN, %d FAIL\n\n", nrow(v), n[["PASS"]],
+              n[["WARN"]], n[["FAIL"]]))
+  notable <- v[v$status != "PASS", ]
+  if (nrow(notable)) knitr::kable(notable) else cat("Every check passed.\n")
+}
+```
+
+```{r libsizes}
+ls <- rd("qc", "library_sizes.tsv")
+if (!is.null(ls)) knitr::kable(ls, caption = "Library sizes")
+```
+
+## Quality control
+
+```{r qc-figs, out.width = "49%", fig.show = "hold"}
+for (f in c("pca", "sample_correlation", "replicate_correlation")) {
+  p <- file.path(R, "qc", paste0(f, ".png"))
+  if (file.exists(p)) print(knitr::include_graphics(p))
+}
+```
+
+Replicates should sit on top of each other and the timepoints should separate.
+If they do not, nothing downstream is trustworthy.
+
+## Dynamic features
+
+```{r dynamic}
+rows <- lapply(arms, function(a) {
+  p <- file.path(R, "differential", paste0(a, "_results.tsv.gz"))
+  if (!file.exists(p)) return(NULL)
+  d <- utils::read.delim(gzfile(p), stringsAsFactors = FALSE)
+  data.frame(arm = a, tested = nrow(d), dynamic = sum(as.logical(d$dynamic)),
+             percent = round(100 * mean(as.logical(d$dynamic)), 1))
+})
+rows <- do.call(rbind, rows)
+if (!is.null(rows)) knitr::kable(rows)
+```
+
+A feature is dynamic when it passes both gates: the significance test, and a
+floor on the range of its per-timepoint means on the transformed scale. The
+second gate is what stops a large experiment returning thousands of
+statistically significant features whose total excursion is negligible.
+
+## Trajectory classes
+
+```{r superclusters, results = "asis"}
+for (a in arms) {
+  cat(sprintf("\n### %s\n\n", a))
+  s <- rd("clusters", paste0(a, "_supercluster_sizes.tsv"))
+  if (!is.null(s)) print(knitr::kable(s))
+  cat("\n")
+  for (f in c("_supercluster_ribbon", "_supercluster_traces", "_dendrogram",
+              "_heatmap", "_degpatterns", "_dynamic_vs_static")) {
+    p <- file.path(R, "figures", paste0(a, f, ".png"))
+    if (file.exists(p)) cat(sprintf("![](%s)\n\n", p))
+  }
+}
+```
+
+### Choosing the number of classes
+
+```{r kdiag}
+kd <- do.call(rbind, lapply(arms, function(a) {
+  d <- rd("clusters", paste0(a, "_k_diagnostics.tsv"))
+  if (is.null(d) || !nrow(d)) NULL else cbind(arm = a, d)
+}))
+if (!is.null(kd) && nrow(kd)) {
+  knitr::kable(kd, digits = 3,
+               caption = "Silhouette and within-cluster sum of squares by k")
+} else {
+  cat("Too few clusters for a k diagnostic.\n")
+}
+```
+
+Higher silhouette is better; the within-cluster sum of squares always falls
+with k, so look for where it stops falling steeply. These describe cutting
+the cluster dendrogram, which is a diagnostic here rather than the
+assignment mechanism unless `superclusters.method` is `hclust`.
+
+## Cluster assignment quality
+
+```{r assignqc}
+aq <- do.call(rbind, lapply(arms, function(a) {
+  d <- rd("clusters", paste0(a, "_cluster_assignment_qc.tsv"))
+  if (is.null(d)) NULL else cbind(arm = a, d)
+}))
+if (!is.null(aq)) knitr::kable(aq)
+```
+
+## Across arms
+
+```{r crosstab}
+ct <- rd("clusters", "cross_arm_crosstab.tsv")
+if (!is.null(ct)) {
+  if (length(arms) == 1L) {
+    cat("Single arm, so there is nothing to compare against.\n\n")
+  }
+  knitr::kable(utils::head(ct, 50))
+}
+```
+
+## Reproducing this
+
+Every threshold is in the config; the fully resolved copy, together with
+package versions, every seed and SHA-256 checksums of the inputs, is written
+to `run_manifest.json` beside this report.
