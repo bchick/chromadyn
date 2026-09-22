@@ -1,0 +1,20 @@
+# ---------------------------------------------------------------------------
+# Demo configuration: the bundled T cell ATAC timecourse.
+#
+#   pixi run demo
+#
+# Overrides only what the demo needs; every other key comes from
+# config/config.yaml. See demo/PROVENANCE.md for what this data is.
+# ---------------------------------------------------------------------------
+input:
+  samplesheet: demo/samplesheet.tsv
+  counts: demo/counts.tsv
+  features: demo/features.bed     # region mode: coordinates are real, so BED export runs
+  baseline_group: shared          # no row uses it; this is a single-arm timecourse
+  time_unit: days
+
+output:
+  dir: results
+
+report:
+  title: "chromadyn demo: CD8+ T cell ATAC timecourse (GSE228171)"
