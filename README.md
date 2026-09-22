@@ -1,7 +1,7 @@
 # chromadyn
 
 **Temporal clustering of omics timecourses.** Give it a counts matrix and a
-samplesheet; get back the features that change over time, grouped into named
+samplesheet; get back the features that change over time, grouped into
 trajectory classes, with publication figures and an HTML report.
 
 ![Trajectory classes recovered from a CD8+ T cell ATAC timecourse](docs/img/supercluster_ribbon.png)
