@@ -11,9 +11,8 @@
 # There is deliberately no automated fidelity test against that run. The two
 # select features by different criteria, so any disagreement would be
 # uninterpretable: you could not tell a regression from the selection step
-# doing its job. The external cross-check lives in tests/test_fidelity_mcf7.R,
-# where the comparison is like for like. Regression on this dataset is covered
-# by the tier 2 golden tables, which run on the demo derived from it.
+# doing its job. Regression on this dataset is covered by the tier 2
+# golden tables, which run on the demo derived from it.
 # ---------------------------------------------------------------------------
 input:
   samplesheet: demo/samplesheet.tsv

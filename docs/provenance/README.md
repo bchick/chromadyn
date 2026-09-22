@@ -14,7 +14,7 @@ was ported from.
 | `00_preprocessing.Rmd` | Consensus peaks, prefilter, VST, QC |
 | `01_degpatterns_clustering.Rmd` | The method proper: per-arm LRT, the range gate, degPatterns, the hand-written supercluster map, the k-means sub-split |
 | `run_chunks_1to6.R` | A plain-Rscript re-run of the first six chunks |
-| `02_arid1a_degpatterns_clustering.Rmd` | The same method on CUT&RUN data, which shows which parts are method and which are dataset |
+| a CUT&RUN clustering notebook | The same method on CUT&RUN data, which shows which parts are method and which are dataset |
 
 `docs/method.md` explains what chromadyn changed and why. The clearest example
 is the hand-typed cluster map at `01_degpatterns_clustering.Rmd:380-403`:

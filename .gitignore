@@ -13,7 +13,6 @@ renv/
 # committed demo files are regenerated from them.
 demo/_source_*.rds
 demo/_source_*.txt
-tests/fixtures/mcf7/
 tests/fixtures/tcell/
 
 # R

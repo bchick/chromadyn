@@ -29,10 +29,10 @@ ATAC-seq analysis into a reusable, validated Snakemake workflow.
   the resolved config, package versions, every seed, `sessionInfo()` and input
   checksums.
 - Every threshold in `config/config.yaml`, validated by a JSON Schema at parse
-  time. Presets for the MCF7 and T cell parameter sets.
+  time. A preset for the T cell parameter set.
 - Three test tiers: static checks, an end-to-end run with golden tables, and a
   correctness tier that recovers known trajectory shapes from simulated
-  counts. Plus an opt-in fidelity check against the original analysis's assignment.
+  counts.
 - A bundled demo derived from a published CD8+ T cell ATAC timecourse
   (GEO GSE228171).
 

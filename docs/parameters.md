@@ -8,11 +8,11 @@ matter. For *why* they exist, see [method.md](method.md).
 From analyses this method has actually been run on, as worked examples of the
 range that works in practice.
 
-| | MCF7 ATAC | CUT&RUN (ARID1A) | T cell ATAC demo |
+| | Large ATAC timecourse | CUT&RUN timecourse | T cell ATAC demo |
 |---|---|---|---|
 | features in | ~50,000 peaks | ~30,000 peaks | 5,000 peaks |
 | features clustered | ~14,000 | ~2,000 | 3,251 |
-| timepoints | 5 (0-240 min) | 5 | 4 (0-8 days) |
+| timepoints | 5 | 5 | 4 (0-8 days) |
 | `min_mean_counts` | 10 | n/a | 10 |
 | `fdr` | 0.01 | 0.05 | 0.01 |
 | `min_range` | 0.5 | 0.5 | 0.5 |

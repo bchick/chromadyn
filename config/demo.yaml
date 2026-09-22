@@ -30,5 +30,5 @@ superclusters:
     # back to numbers. A margin of -0.5 separates them correctly.
     #
     # The default stays 0.0 because that is the value the source analysis
-    # used, and config/presets/mcf7_as28.yaml has to reproduce it.
+    # used, and the defaults are meant to reproduce it.
     cross: -0.5

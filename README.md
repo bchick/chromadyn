@@ -169,8 +169,6 @@ Rscript tests/test_correctness.R # tier 3, recovery of known trajectory shapes
 ```
 
 Tier 3 simulates counts from five known shapes and checks what comes back.
-`tests/test_fidelity_mcf7.R` additionally checks chromadyn against the original MCF7
-assignment; it is opt-in and skips unless that source project is present.
 
 ## Citation
 

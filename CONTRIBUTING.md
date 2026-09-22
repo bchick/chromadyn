@@ -62,9 +62,6 @@ If you changed the method deliberately, the golden tables will differ.
 Regenerate them with `UPDATE_GOLDEN=1` and **say what changed and why in the
 pull request**. A golden diff that is not explained is a regression.
 
-If the source projects are available, also run
-`Rscript tests/test_fidelity_mcf7.R`. It skips otherwise.
-
 ## Adding a rule
 
 1. Add its output templates to `workflow/paths.yaml`.
