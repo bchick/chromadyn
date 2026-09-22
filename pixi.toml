@@ -1,0 +1,58 @@
+# ---------------------------------------------------------------------------
+# chromadyn environment.
+#
+# pixi is the primary route: it installs Snakemake itself, so neither snakemake
+# nor conda/mamba need to be on the user's PATH already. Specs here are loose;
+# pixi.lock pins every package to an exact build and is committed alongside.
+#
+# Bioconductor is pinned to one release via r-base. Mixing releases (a Bioc 3.17
+# DESeq2 against a Bioc 3.20 GenomicRanges, say) appears to work and then fails
+# in obscure ways at the S4 boundary, so the solver gets one R version and
+# resolves a single coherent Bioconductor set around it.
+# ---------------------------------------------------------------------------
+[workspace]
+name = "chromadyn"
+version = "0.1.0"
+description = "Temporal clustering of omics timecourses: dynamic features, named trajectory classes, publication figures"
+authors = ["Brent Chick <bchick@salk.edu>"]
+channels = ["conda-forge", "bioconda"]
+platforms = ["linux-64", "osx-arm64"]
+
+[tasks]
+demo = "snakemake --configfile config/demo.yaml -j 4"
+test = "bash tests/test_static.sh && bash tests/test_endtoend.sh"
+lint = "snakemake --lint"
+version = "Rscript -e 'cat(R.version.string, \"\\n\"); for (p in c(\"DESeq2\",\"DEGreport\",\"ComplexHeatmap\")) cat(p, as.character(packageVersion(p)), \"\\n\")'"
+
+[dependencies]
+# Workflow engine
+snakemake-minimal = ">=8.0"
+pandoc = "*"
+
+# R
+r-base = "4.4.*"
+
+# Bioconductor core
+bioconductor-deseq2 = "*"
+bioconductor-degreport = "*"
+bioconductor-complexheatmap = "*"
+bioconductor-limma = "*"
+bioconductor-summarizedexperiment = "*"
+bioconductor-genomicranges = "*"
+bioconductor-rtracklayer = "*"
+
+# CRAN
+r-tidyverse = "*"
+r-yaml = "*"
+r-jsonlite = "*"
+r-patchwork = "*"
+r-svglite = "*"
+r-ragg = "*"
+r-mclust = "*"
+r-cluster = "*"
+r-rmarkdown = "*"
+r-digest = "*"
+
+# Annotation packages (TxDb.*, org.*) are deliberately NOT here. They are large,
+# genome-specific, and only needed when annotate.txdb is set. docs/parameters.md
+# says which to add for which genome.

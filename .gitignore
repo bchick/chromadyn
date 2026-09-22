@@ -1,0 +1,26 @@
+# Results and scratch
+results/
+.snakemake/
+logs/
+*.log
+
+# Environments
+.pixi/
+renv/
+.Rproj.user/
+
+# Large source objects, never committed. See demo/PROVENANCE.md for how the
+# committed demo files are regenerated from them.
+demo/_source_*.rds
+demo/_source_*.txt
+tests/fixtures/mcf7/
+tests/fixtures/tcell/
+
+# R
+.Rhistory
+.RData
+.Rapp.history
+
+# OS
+.DS_Store
+Thumbs.db
