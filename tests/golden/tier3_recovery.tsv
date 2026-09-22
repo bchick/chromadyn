@@ -1,0 +1,11 @@
+arm	truth	recovered	purity
+A	Decreasing	Decreasing	1
+A	Late Increasing	Increasing-3	0.67
+A	Sustained Increasing	Increasing-2	1
+A	Transient	Transient	1
+A	Transient Increasing	Transient	1
+B	Decreasing	Decreasing	1
+B	Late Increasing	Increasing-1	0.502
+B	Sustained Increasing	Increasing-2	1
+B	Transient	Transient	1
+B	Transient Increasing	Transient	1

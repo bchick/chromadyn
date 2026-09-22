@@ -344,6 +344,28 @@ cd_init <- function(snakemake) {
   .CD$notes <- list()
   .CD$started <- Sys.time()
 
+  # Snakemake redirects a rule's output into its `log:` file only for shell
+  # directives, not for script directives, so a declared log would otherwise
+  # stay empty. Tee instead of redirect: globalCallingHandlers() sees each
+  # message without muffling it, so the console still shows progress while
+  # the log captures everything for CI and for after the fact.
+  logfile <- tryCatch(snakemake@log[[1]], error = function(e) NULL)
+  if (length(logfile) && nzchar(logfile)) {
+    cd_mkdir(dirname(logfile))
+    .CD$logfile <- logfile
+    cat(sprintf("# chromadyn %s, started %s\n", .CD$rule, format(Sys.time())),
+        file = logfile, append = FALSE)
+    globalCallingHandlers(
+      message = function(m) {
+        try(cat(conditionMessage(m), file = .CD$logfile, append = TRUE), silent = TRUE)
+      },
+      warning = function(w) {
+        try(cat(sprintf("WARNING: %s\n", conditionMessage(w)),
+                file = .CD$logfile, append = TRUE), silent = TRUE)
+      }
+    )
+  }
+
   paths_file <- file.path(snakemake@scriptdir, "..", "paths.yaml")
   cd_assert(file.exists(paths_file), "workflow/paths.yaml not found at %s", paths_file)
   .CD$paths <- yaml::read_yaml(paths_file)
