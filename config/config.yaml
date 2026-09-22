@@ -43,6 +43,11 @@ filter:
   # dispersion fit and waste clustering capacity on noise.
   min_mean_counts: 10
 
+  # Validation only, never applied to data. If the prefilter keeps a smaller
+  # fraction than this, 01_validate.R warns: it usually means min_mean_counts
+  # was set for a different assay's depth.
+  warn_below_fraction: 0.01
+
 transform:
   # vst | rlog | none. `none` means the input is already normalized; the
   # differential step is then limited to method `none` as well.

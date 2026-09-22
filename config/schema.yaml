@@ -1,4 +1,4 @@
-$schema: "http://json-schema.org/draft-07/schema#"
+$schema: "https://json-schema.org/draft/2020-12/schema"
 description: >
   chromadyn configuration schema. Wired to Snakemake's validate() so a typo
   fails at parse time rather than three rules in. Every key in
@@ -40,9 +40,10 @@ properties:
   filter:
     type: object
     additionalProperties: false
-    required: [min_mean_counts]
+    required: [min_mean_counts, warn_below_fraction]
     properties:
       min_mean_counts: {type: number, minimum: 0}
+      warn_below_fraction: {type: number, minimum: 0, maximum: 1}
 
   transform:
     type: object

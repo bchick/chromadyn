@@ -1,0 +1,30 @@
+# Conda environment for every R rule.
+#
+# pixi is the primary route and pixi.lock is the authoritative pin; this file
+# exists so that `snakemake --use-conda` works for users on HPC who already
+# have conda and do not want a second package manager. Keep the package list
+# in step with pixi.toml.
+name: chromadyn-r
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - r-base=4.4.*
+  - bioconductor-deseq2
+  - bioconductor-degreport
+  - bioconductor-complexheatmap
+  - bioconductor-limma
+  - bioconductor-summarizedexperiment
+  - bioconductor-genomicranges
+  - bioconductor-rtracklayer
+  - r-tidyverse
+  - r-yaml
+  - r-jsonlite
+  - r-patchwork
+  - r-svglite
+  - r-ragg
+  - r-mclust
+  - r-cluster
+  - r-rmarkdown
+  - r-digest
+  - pandoc

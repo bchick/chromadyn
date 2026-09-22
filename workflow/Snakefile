@@ -1,0 +1,68 @@
+# ---------------------------------------------------------------------------
+# chromadyn: temporal clustering of omics timecourses.
+#
+# Reads a counts matrix and a samplesheet; returns dynamic features grouped
+# into named trajectory classes, with figures and an HTML report.
+#
+#   pixi run demo
+#   snakemake --configfile config/demo.yaml -j 4
+#
+# Structure notes:
+#
+#   Arms are derived at PARSE TIME from the samplesheet, by a plain Python
+#   function rather than a checkpoint. Arm membership is a pure function of one
+#   samplesheet column and the samplesheet exists before the DAG is built, so
+#   there is nothing to defer. Using a checkpoint here would cost the ability
+#   to see the whole DAG in `snakemake -n` and `--lint`, which is what the
+#   tier 1 static test relies on.
+#
+#   Optional rules (BED export, annotation) are always DEFINED, so that the
+#   linter and the static test can see them, and are gated only by whether
+#   `rule all` asks for their outputs. Never wrap a `rule:` block in an `if`.
+#
+#   Output paths live in workflow/paths.yaml, read here and in R, so a path is
+#   defined once.
+# ---------------------------------------------------------------------------
+
+import csv
+import os
+import re
+
+from snakemake.utils import validate
+from snakemake.exceptions import WorkflowError
+
+import yaml
+
+
+configfile: "config/config.yaml"
+
+
+validate(config, os.path.join(workflow.basedir, "..", "config", "schema.yaml"))
+
+include: "rules/common.smk"
+
+# --- resolved once, used everywhere ----------------------------------------
+PATHS = load_paths()
+OUT = config["output"]["dir"]
+SAMPLES = load_samplesheet(config["input"]["samplesheet"])
+BASELINE = config["input"]["baseline_group"]
+ARMS = derive_arms(SAMPLES, BASELINE)
+TIMES = sorted({float(r["time"]) for r in SAMPLES})
+
+REGION_MODE = config["input"]["features"] is not None
+ANNOTATE = REGION_MODE and config["annotate"]["txdb"] is not None
+
+check_supercluster_cut(config)
+check_overrides(config)
+
+
+wildcard_constraints:
+    arm="|".join(re.escape(a) for a in ARMS),
+
+
+rule all:
+    input:
+        final_targets,
+
+
+include: "rules/qc.smk"
