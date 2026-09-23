@@ -25,7 +25,7 @@ suppressPackageStartupMessages({
 args <- commandArgs(trailingOnly = TRUE)
 res <- if (length(args) >= 1) args[1] else "examples/tcell_motifs/work/results"
 gtf <- if (length(args) >= 2) args[2] else
-  "/data/bchick/wproj/tcell_project/data/reference/gencode.vM35.primary_assembly.annotation.gtf"
+  "examples/tcell_motifs/work/reference/gencode.vM35.primary_assembly.annotation.gtf"
 work <- dirname(res)
 PROMOTER_BP <- 1000       # promoter = within 1 kb of a TSS
 FLANK_BP <- 3000          # promoter flank = 1 to 3 kb

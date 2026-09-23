@@ -4,7 +4,13 @@
 samplesheet; get back the features that change over time, grouped into
 trajectory classes, with publication figures and an HTML report.
 
-![Trajectory classes recovered from a CD8+ T cell ATAC timecourse](docs/img/supercluster_ribbon.png)
+![Trajectory classes recovered from an ATAC-seq timecourse of antiviral CD8+ T cells](docs/img/supercluster_ribbon.png)
+
+*Trajectory classes that chromadyn recovers from ATAC-seq of antiviral CD8+ T
+cells in mice infected with LCMV Armstrong, sampled from naive (day 0) to day
+8 post infection. Each panel is one class: the line is the class mean
+accessibility (z-score) and the bands show its spread across peaks. Data from
+McDonald, Chick et al., Immunity 2023 ([details](#demo-data)).*
 
 ## Quickstart
 
@@ -15,9 +21,40 @@ pixi install
 pixi run demo          # about 2 minutes, writes results/report.html
 ```
 
-That runs the bundled demo: a 5,000-peak subset of a published CD8+ T cell
-ATAC timecourse ([Immunity 2023](https://doi.org/10.1016/j.immuni.2023.05.005),
-GEO GSE228171). The figure above is its actual output.
+That runs the bundled demo, and the figure above is its actual output.
+
+### Demo data
+
+The demo is drawn from a published ATAC-seq timecourse of CD8+ T cells
+responding to acute viral infection. Mice were infected with lymphocytic
+choriomeningitis virus (LCMV) Armstrong, a strain the immune system clears
+within about a week. Accessibility was profiled in naive CD8+ T cells (day 0),
+in antiviral CD8+ T cells at days 3 and 5 post infection, and in sorted
+terminal effector cells at day 8, the peak of the response.
+
+It is a subset of the full samples, so that it runs in about two minutes:
+
+- **Samples**: 9 of the study's 62 ATAC libraries: two wild-type replicates
+  each at days 0, 3 and 5, and three at day 8. A 48-hour timepoint was left
+  out because it failed QC.
+- **Peaks**: 5,000 of the 129,076 consensus peaks on standard chromosomes,
+  sampled so that every trajectory shape is represented, along with static
+  and low-count peaks, so every step of the pipeline has real work to do.
+- **Counts**: unchanged. Every retained peak keeps its full read count from
+  each library; nothing is downsampled.
+
+The [T cell example](#example-trajectory-classes-carry-biology) below runs the
+same nine libraries on every peak.
+
+> McDonald BD\*, Chick BY\*, Ahmed NU, et al. Canonical BAF complex activity
+> shapes the enhancer landscape that licenses CD8+ T cell effector and memory
+> fates. *Immunity* 56(6):1303-1319.e5 (2023).
+> [doi:10.1016/j.immuni.2023.05.005](https://doi.org/10.1016/j.immuni.2023.05.005).
+> GEO [GSE228381](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE228381)
+> (ATAC sub-series [GSE228171](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE228171)).
+
+Which libraries were used, and why, is documented in
+[`demo/PROVENANCE.md`](demo/PROVENANCE.md).
 
 ## What it does
 
@@ -112,13 +149,25 @@ be traced to its parameters is not a result.
 ## Example: trajectory classes carry biology
 
 Classes are defined from counts and timepoints alone, so a fair test is
-whether they also differ in things the clustering never saw. On the full T
-cell timecourse behind the demo (129,076 peaks, 54,282 dynamic), each class
-has its own genomic context and its own motif signature relative to static
-peaks. Decreasing peaks carry TCF7 and LEF1 motifs, Transient peaks carry AP-1
-and BATF, and Late Increasing peaks carry ETS factors.
+whether they also differ in things the clustering never saw. This example runs
+chromadyn on every peak of the timecourse behind the demo: ATAC-seq of CD8+ T
+cells in LCMV Armstrong infected mice, naive through day 8 post infection
+(129,076 peaks, 54,493 of them dynamic). Each class has its own genomic
+context and its own motif signature compared with static peaks.
 
 ![Trajectory classes, genomic context and motif enrichment](docs/img/tcell_classes_overview.png)
+
+*A: the five trajectory classes, with the number of peaks in each. B: where
+each class sits in the genome, with static peaks as the reference; the dashed
+line marks the promoter fraction of static peaks. C: known motifs (JASPAR2024)
+enriched in each class over static peaks, by MEME-suite SEA; a dot marks
+q < 1e-5.*
+
+Peaks that close after activation (Decreasing) carry motifs of TCF7 and LEF1,
+factors of the naive and memory T cell state. Peaks that open transiently,
+around day 3, carry motifs of the AP-1 and BATF factors induced by T cell
+activation. Peaks that open late carry motifs of ETS factors. The clustering
+was never told any of this.
 
 Scripts, tables and full reproduction steps are in
 [`examples/tcell_motifs/`](examples/tcell_motifs/README.md).
@@ -186,9 +235,17 @@ Tier 3 simulates counts from five known shapes and checks what comes back.
 
 ## Citation
 
-See [`CITATION.cff`](CITATION.cff). If you use the bundled demo data, cite the
-paper it comes from, not this repository: see
-[`demo/PROVENANCE.md`](demo/PROVENANCE.md).
+To cite chromadyn itself, see [`CITATION.cff`](CITATION.cff).
+
+If you use the bundled demo data or the T cell example, cite the paper the
+data come from, not this repository:
+
+> McDonald BD\*, Chick BY\*, Ahmed NU, et al. Canonical BAF complex activity
+> shapes the enhancer landscape that licenses CD8+ T cell effector and memory
+> fates. *Immunity* 56(6):1303-1319.e5 (2023).
+> [doi:10.1016/j.immuni.2023.05.005](https://doi.org/10.1016/j.immuni.2023.05.005)
+
+\* Equal contribution.
 
 ## License
 

@@ -21,7 +21,7 @@
 set -uo pipefail
 
 RES="${1:-examples/tcell_motifs/work/results}"
-FA="${2:-/data/bchick/wproj/tcell_project/data/reference/GRCm39.primary_assembly.genome.fa}"
+FA="${2:-examples/tcell_motifs/work/reference/GRCm39.primary_assembly.genome.fa}"
 MEME="${3:-examples/tcell_motifs/work/motifs/jaspar2024_vert_nr.meme}"
 ARM="WT"
 HALF=100

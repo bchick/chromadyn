@@ -16,7 +16,9 @@ It is real data, not simulated, and it is already public.
 | Source matrix | `consensus_peaks.mRp.clN.featureCounts.txt`, 129,314 peaks x 62 libraries |
 
 The source matrix is not committed. `build_demo.R` regenerates everything here
-from it, and takes its path as the first argument.
+from it. It takes the matrix path as its first argument and otherwise reads
+`demo/_source_featureCounts.txt`, a git-ignored location, so a copy can sit
+there without being committed.
 
 ## Design
 
@@ -98,9 +100,10 @@ With shipped defaults, as a reference for anyone changing this file:
 | both (dynamic) | 3,251 of 4,500, 72% |
 | degPatterns, `minc: 50` | 8 clusters, 3,251 features, about 70 s |
 
-The dynamic fraction is high because the subsample is deliberately enriched
-for time-varying features; a whole-genome run on the full matrix is nowhere
-near 72%.
+The dynamic fraction is not a sign that the subsample is enriched for change.
+On the full matrix, 54,493 of the 73,528 peaks that pass the same prefilter
+are dynamic (74%), so the demo is representative in this respect. Most peaks
+in the full matrix that do not change are removed by the prefilter.
 
 ## Redistribution
 

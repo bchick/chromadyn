@@ -11,11 +11,12 @@
 # ---------------------------------------------------------------------------
 
 args <- commandArgs(trailingOnly = TRUE)
-mpath <- if (length(args) >= 1) args[1] else file.path(
-  "/data/bchick/wproj/tcell_project/results/atac/bowtie2/merged_replicate",
-  "macs2/narrow_peak/consensus/consensus_peaks.mRp.clN.featureCounts.txt")
+mpath <- if (length(args) >= 1) args[1] else "demo/_source_featureCounts.txt"
 outdir <- if (length(args) >= 2) args[2] else "examples/tcell_motifs/work/inputs"
-stopifnot(file.exists(mpath))
+if (!file.exists(mpath)) {
+  stop("Source matrix not found: ", mpath,
+       "\nPass the path as the first argument. See demo/PROVENANCE.md.", call. = FALSE)
+}
 dir.create(outdir, recursive = TRUE, showWarnings = FALSE)
 
 # The demo's nine libraries and design, reused verbatim so the two runs are

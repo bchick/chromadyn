@@ -15,6 +15,8 @@
 # Run from the repo root:
 #   Rscript demo/build_demo.R [path/to/consensus_peaks.mRp.clN.featureCounts.txt]
 #
+# With no argument it reads demo/_source_featureCounts.txt.
+#
 # Outputs: demo/counts.tsv, demo/samplesheet.tsv, demo/features.bed
 # ---------------------------------------------------------------------------
 
@@ -44,9 +46,8 @@ PARAMS <- list(
   std_chroms      = paste0("chr", c(1:19, "X", "Y"))
 )
 
-DEFAULT_MATRIX <- file.path(
-  "/data/bchick/wproj/tcell_project/results/atac/bowtie2/merged_replicate",
-  "macs2/narrow_peak/consensus/consensus_peaks.mRp.clN.featureCounts.txt")
+# Relative to the repo root; demo/_source_* is git-ignored. See PROVENANCE.md.
+DEFAULT_MATRIX <- "demo/_source_featureCounts.txt"
 
 # The nine libraries, and the design they encode.
 #

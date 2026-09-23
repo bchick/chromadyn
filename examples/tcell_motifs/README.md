@@ -8,16 +8,43 @@ artefact of the clustering.
 
 ![Trajectory classes, genomic context and motif enrichment](tcell_classes_overview.png)
 
+*CD8+ T cell ATAC-seq after LCMV Armstrong infection, days 0 to 8 post
+infection. **A**: the five trajectory classes, covering 54,282 dynamic peaks. The line is the class mean accessibility (z-score); the bands
+show its spread across peaks. **B**: genomic context of each class, with
+static peaks as the reference; the dashed line marks the promoter fraction of
+static peaks. **C**: known motifs enriched in each class over static peaks
+(MEME-suite SEA, JASPAR2024). Colour is log2 enrichment and a dot marks
+q < 1e-5. The top six motifs per class are shown.*
+
 ## Data
 
-The full wild-type CD8+ T cell ATAC timecourse behind the bundled demo
-([Immunity 2023](https://doi.org/10.1016/j.immuni.2023.05.005), GEO
-GSE228171): the same nine libraries and design as `demo/`, at 0, 3, 5 and 8
-days, but every consensus peak on a standard chromosome (129,076) instead of
-a 5,000-peak subsample. chromadyn runs with the demo settings unchanged, so
-any difference from the demo comes from the data.
+ATAC-seq of wild-type CD8+ T cells responding to acute viral infection. Mice
+were infected with lymphocytic choriomeningitis virus (LCMV) Armstrong, which
+is cleared within about a week. Chromatin accessibility was profiled in naive
+CD8+ T cells (day 0), in antiviral CD8+ T cells at days 3 and 5 post
+infection, and in sorted terminal effector cells at day 8, the peak of the
+response. The timecourse therefore spans activation, clonal expansion and
+effector differentiation.
 
-It calls 54,282 peaks dynamic and 19,035 static. The `Increasing` class is
+> McDonald BD\*, Chick BY\*, Ahmed NU, et al. Canonical BAF complex activity
+> shapes the enhancer landscape that licenses CD8+ T cell effector and memory
+> fates. *Immunity* 56(6):1303-1319.e5 (2023).
+> [doi:10.1016/j.immuni.2023.05.005](https://doi.org/10.1016/j.immuni.2023.05.005).
+> GEO [GSE228381](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE228381)
+> (ATAC sub-series [GSE228171](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE228171)).
+> \* Equal contribution.
+
+Cite that paper, not this repository, when you use these data.
+
+This is the same timecourse as the bundled demo, with the same nine libraries
+and design (see [`demo/PROVENANCE.md`](../../demo/PROVENANCE.md)). The
+difference is that it uses every consensus peak on a standard chromosome
+(129,076) instead of a 5,000-peak subsample. chromadyn runs with the demo
+settings unchanged, so any difference from the demo comes from the data.
+
+Of the 73,528 peaks that pass the count prefilter, it calls 54,493 dynamic
+and 19,035 static. Of the dynamic peaks, 54,282 fall into the five classes
+below and 211 are left unassigned. The `Increasing` class is
 split in three, and the split names its pieces numerically. They are renamed
 here by the shape they actually have:
 
@@ -48,7 +75,7 @@ peaks, enrichment means the motif is specific to that temporal program.
   (879 motifs):
 
   ```bash
-  curl -L -o examples/tcell_motifs/work/motifs/jaspar2024_vert_nr.meme \
+  curl -L --create-dirs -o examples/tcell_motifs/work/motifs/jaspar2024_vert_nr.meme \
     https://jaspar.elixir.no/download/data/2024/CORE/JASPAR2024_CORE_vertebrates_non-redundant_pfms_meme.txt
   # sha256 dd494278d356a4e170908c74d6d8eb746a2c7504d6210cd51017141f21a65b18
   ```
@@ -74,18 +101,35 @@ per class) and [`genomic_annotation.tsv`](genomic_annotation.tsv).
 
 ## Reproducing
 
-Run from the repository root. Beyond the chromadyn environment, the example
-needs bedtools, the MEME suite, and the Bioconductor packages ChIPseeker and
-txdbmaker, plus a GRCm39 FASTA with a `.fai` index and the GENCODE vM35 GTF.
-Each script takes its input paths as arguments; the defaults point at the
-author's local copies.
+Run everything from the repository root. Beyond the chromadyn environment, the
+example needs bedtools, samtools, the MEME suite, and the Bioconductor
+packages ChIPseeker and txdbmaker.
+
+Every script takes its input paths as arguments. With no arguments, each one
+reads from these default locations, all of them relative and git-ignored:
+
+| File | Default location | Source |
+|---|---|---|
+| featureCounts matrix | `demo/_source_featureCounts.txt` | nf-core/atacseq consensus peaks from GSE228171; see [`demo/PROVENANCE.md`](../../demo/PROVENANCE.md) |
+| GRCm39 genome FASTA and its `.fai` | `examples/tcell_motifs/work/reference/GRCm39.primary_assembly.genome.fa` | [GENCODE M35](https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M35/GRCm39.primary_assembly.genome.fa.gz) |
+| GENCODE vM35 GTF | `examples/tcell_motifs/work/reference/gencode.vM35.primary_assembly.annotation.gtf` | [GENCODE M35](https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M35/gencode.vM35.primary_assembly.annotation.gtf.gz) |
+| JASPAR motifs | `examples/tcell_motifs/work/motifs/jaspar2024_vert_nr.meme` | the `curl` command under Method |
 
 ```bash
-Rscript examples/tcell_motifs/build_inputs.R <featureCounts matrix> examples/tcell_motifs/work/inputs
+# reference files
+mkdir -p examples/tcell_motifs/work/reference && cd examples/tcell_motifs/work/reference
+G=https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M35
+curl -L $G/GRCm39.primary_assembly.genome.fa.gz | gunzip > GRCm39.primary_assembly.genome.fa
+curl -L $G/gencode.vM35.primary_assembly.annotation.gtf.gz | gunzip > gencode.vM35.primary_assembly.annotation.gtf
+samtools faidx GRCm39.primary_assembly.genome.fa
+cd -
+
+# the analysis
+Rscript examples/tcell_motifs/build_inputs.R
 pixi run --frozen snakemake -j 8 \
     --configfile config/demo.yaml examples/tcell_motifs/config.yaml
-bash examples/tcell_motifs/run_motifs.sh examples/tcell_motifs/work/results <genome.fa> <motifs.meme>
-Rscript examples/tcell_motifs/annotate_classes.R examples/tcell_motifs/work/results <gencode.vM35.gtf>
+bash examples/tcell_motifs/run_motifs.sh
+Rscript examples/tcell_motifs/annotate_classes.R
 pixi run --frozen Rscript examples/tcell_motifs/plot_motifs.R
 pixi run --frozen Rscript examples/tcell_motifs/make_figure.R
 ```
