@@ -12,6 +12,10 @@ uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
   z-scored profiles. It clusters every feature without subsampling, at a
   fixed `cluster.kmeans.k` (default 10) or the best silhouette in
   `cluster.kmeans.k_range`.
+- A metro-map pipeline diagram (`docs/img/pipeline.svg`) and a step-by-step
+  pipeline summary in the README, which now presents the project as a
+  workflow around DESeq2 and DEGreport rather than a new method, and asks
+  users to cite those tools.
 - `clusters/<arm>_cluster_selection.tsv`, recording how the cluster count was
   reached, and a matching section in the report.
 - The tier 3 correctness test takes `CLUSTER_METHOD`, and tier 2 runs the

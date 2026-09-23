@@ -1,10 +1,12 @@
 cff-version: 1.2.0
 message: "If you use timecourse-patterns, please cite it using these metadata."
-title: "timecourse-patterns: temporal clustering of omics timecourses"
+title: "timecourse-patterns: a Snakemake workflow for clustering dynamic features in timecourse count data"
 abstract: >-
   A Snakemake workflow that takes a counts matrix and a samplesheet from a
-  timecourse experiment and returns dynamic features grouped into named
-  trajectory classes, with publication figures and an HTML report. Assay
+  timecourse experiment, selects the features that change over time with
+  DESeq2 and an effect-size gate, clusters their trajectories with
+  DEGreport degPatterns or k-means, and names the resulting trajectory
+  classes, with figures, an HTML report and a provenance record. Assay
   agnostic: features may be genomic regions or genes. Supports multi-arm
   designs sharing a single unstimulated baseline.
 type: software

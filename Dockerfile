@@ -39,7 +39,7 @@ COPY --from=build /opt/timecourse-patterns /opt/timecourse-patterns
 COPY --from=build /shell-hook.sh /shell-hook.sh
 
 LABEL org.opencontainers.image.title="timecourse-patterns" \
-      org.opencontainers.image.description="Temporal clustering of omics timecourses" \
+      org.opencontainers.image.description="Snakemake workflow for clustering dynamic features in timecourse count data" \
       org.opencontainers.image.source="https://github.com/bchick/timecourse-patterns" \
       org.opencontainers.image.licenses="MIT"
 

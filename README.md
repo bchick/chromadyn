@@ -1,16 +1,46 @@
 # timecourse-patterns
 
-**Temporal clustering of omics timecourses.** Give it a counts matrix and a
-samplesheet; get back the features that change over time, grouped into
-trajectory classes, with publication figures and an HTML report.
+**A Snakemake workflow for finding the features that change over a
+timecourse and grouping them by the shape of their change.** It chains
+established tools, DESeq2 for the test over time and DEGreport's
+`degPatterns` (or k-means) for clustering, and adds the steps around them
+that the source analysis did by hand: an effect-size gate, automated naming
+of trajectory classes, figures, an HTML report and a full provenance record.
+
+It is a workflow, not a new statistical method. The clustering is the one
+used in the source analysis; see [`docs/method.md`](docs/method.md) for what
+was kept, what was changed and why.
 
 ![Trajectory classes recovered from an ATAC-seq timecourse of antiviral CD8+ T cells](docs/img/supercluster_ribbon.png)
 
-*Trajectory classes that timecourse-patterns recovers from ATAC-seq of antiviral CD8+ T
+*Trajectory classes the workflow recovers from ATAC-seq of antiviral CD8+ T
 cells in mice infected with LCMV Armstrong, sampled from naive (day 0) to day
 8 post infection. Each panel is one class: the line is the class mean
 accessibility (z-score) and the bands show its spread across peaks. Data from
 McDonald, Chick et al., Immunity 2023 ([details](#demo-data)).*
+
+## Pipeline
+
+![The workflow as a metro map: validate, prefilter, transform and QC over all samples; then, per treatment arm, a DESeq2 test over time, two-gate selection, clustering, trajectory classes and figures; then a cross-arm comparison, the report and the manifest](docs/img/pipeline.svg)
+
+1. **Validate** the samplesheet against the counts: exact ID match, numeric
+   timepoints, enough of them per arm, non-negative integer counts.
+2. **Prefilter** features too sparse to have been measured.
+3. **Transform** with DESeq2's variance-stabilizing transform (or rlog), blind
+   to the design. **QC**: PCA and sample and replicate correlations.
+4. **Test over time**, per treatment arm, with a DESeq2 likelihood-ratio test
+   (or per-timepoint Wald contrasts). Single-replicate designs rank by
+   variance instead.
+5. **Select dynamic features** that pass both a significance gate and a floor
+   on the range of their per-timepoint means.
+6. **Cluster** their z-scored trajectories with DEGreport `degPatterns`, as in
+   the source analysis, or with k-means.
+7. **Name trajectory classes** (Decreasing, Transient, Late Increasing, ...)
+   from each cluster's mean profile, with an optional second stage that
+   splits one broad class.
+8. **Report**: six figures per arm, a cross-arm comparison, BED files per
+   class and optional genomic annotation in region mode, an HTML report and
+   `run_manifest.json`.
 
 ## Quickstart
 
@@ -56,19 +86,20 @@ same nine libraries on every peak.
 Which libraries were used, and why, is documented in
 [`demo/PROVENANCE.md`](demo/PROVENANCE.md).
 
-## What it does
+## Scope
 
-timecourse-patterns answers one question: **given counts over a timecourse, which
+The workflow addresses one question: **given counts over a timecourse, which
 features change over time, and what distinct shapes do those changes take?**
 
 It starts at a counts matrix and never touches FASTQ, BAM or peak calling, so
-it composes downstream of nf-core/atacseq, nf-core/rnaseq, DiffBind,
+it runs downstream of nf-core/atacseq, nf-core/rnaseq, DiffBind,
 featureCounts, salmon or any other quantifier. Features may be genomic regions
-(ATAC, CUT&RUN, ChIP) or genes (RNA-seq); region-specific behaviour switches on
-when you supply coordinates and is skipped silently when you do not.
+(ATAC, CUT&RUN, ChIP) or genes (RNA-seq); region-specific steps switch on
+when you supply coordinates and are skipped silently when you do not.
 
-The step most tools leave to you is the one it automates: turning a few dozen
-correlation clusters into a handful of named, interpretable trajectory classes.
+The step it adds beyond the tools it wraps is the naming: turning a few dozen
+clusters into a handful of named trajectory classes by a stated rule, where
+the source analysis typed the mapping in by hand.
 
 ## Input
 
@@ -151,7 +182,7 @@ be traced to its parameters is not a result.
 
 Classes are defined from counts and timepoints alone, so a fair test is
 whether they also differ in things the clustering never saw. This example runs
-timecourse-patterns on every peak of the timecourse behind the demo: ATAC-seq of CD8+ T
+the workflow on every peak of the timecourse behind the demo: ATAC-seq of CD8+ T
 cells in LCMV Armstrong infected mice, naive through day 8 post infection
 (129,076 peaks, 54,493 of them dynamic). Each class has its own genomic
 context and its own motif signature compared with static peaks.
@@ -173,34 +204,33 @@ was never told any of this.
 Scripts, tables and full reproduction steps are in
 [`examples/tcell_motifs/`](examples/tcell_motifs/README.md).
 
-## How this differs from other tools
+## Relationship to other tools
 
-**DiffBind** and **DESeq2** tell you *whether* a feature changed between
-conditions. timecourse-patterns starts from that question already answered and asks what
-*shape* the change has across the whole timecourse. It uses DESeq2 internally
-for exactly that first step.
+**DESeq2** and **DEGreport** do the statistical work: DESeq2 decides whether
+a feature changes over time, and `degPatterns` groups the ones that do by
+correlation of their trajectories. Run by hand, they leave you with numbered
+clusters, a set of thresholds spread across a notebook, and the job of deciding
+what each cluster means. This workflow runs them with every threshold in one
+validated config, and makes that last step a stated rule.
 
-**Mfuzz** does soft clustering of expression timecourses and is a good tool. It
-gives you numbered clusters and leaves both the choice of *c* and the
-interpretation of each cluster to you. The workflow's contribution is the layer
-above: collapsing clusters into a small number of named classes by a stated
-rule, with the diagnostics to check the rule.
+**Mfuzz** (soft clustering) and **TCseq** are alternative ways to cluster
+timecourse profiles. They could stand in for the clustering step here; the
+naming step works on cluster mean profiles and does not care which clusterer
+produced them.
 
 **ImpulseDE2** and **maSigPro** fit parametric models of expression over time,
-impulse and polynomial respectively. They are more powerful than timecourse-patterns when
-your trajectories really do follow that functional form, and they answer a
-different question: model fit and significance rather than shape taxonomy. If
-you want to know "is this gene transiently induced", they are the better tool.
-If you want to know "how many distinct temporal programs are in this dataset,
-and which features belong to each", timecourse-patterns is aimed at that.
+impulse and polynomial respectively. They are more powerful when your
+trajectories really do follow that form, and answer a different question:
+model fit and significance rather than a taxonomy of shapes.
 
 **Tempora** and other trajectory-inference methods order *cells* along a
-pseudotime. timecourse-patterns works on bulk timecourses with real sampled timepoints
-and does not infer an ordering; you tell it the times.
+pseudotime. This workflow is for bulk timecourses with real sampled
+timepoints; you tell it the times.
 
-What timecourse-patterns adds that none of the above provides directly: the shared
-baseline across arms, the second effect-size gate, automated naming of
-trajectory classes, and a reproducibility record.
+What the workflow contributes on top of the tools it wraps: multi-arm designs
+that share one baseline, the effect-size gate, automated naming of trajectory
+classes, guards against silent failures in the underlying tools, and a
+reproducibility record.
 
 ## Documentation
 
@@ -236,7 +266,17 @@ Tier 3 simulates counts from five known shapes and checks what comes back.
 
 ## Citation
 
-To cite timecourse-patterns itself, see [`CITATION.cff`](CITATION.cff).
+To cite the workflow, see [`CITATION.cff`](CITATION.cff). Please also cite
+the tools that do the statistical work:
+
+- **DESeq2**: Love MI, Huber W, Anders S. Moderated estimation of fold change
+  and dispersion for RNA-seq data with DESeq2. *Genome Biology* 15:550
+  (2014). [doi:10.1186/s13059-014-0550-8](https://doi.org/10.1186/s13059-014-0550-8)
+- **DEGreport**: Pantano L. DEGreport: Report of DEG analysis. R package,
+  Bioconductor. [doi:10.18129/B9.bioc.DEGreport](https://doi.org/10.18129/B9.bioc.DEGreport)
+- **Snakemake**: Mölder F, Jablonski KP, Letcher B, et al. Sustainable data
+  analysis with Snakemake. *F1000Research* 10:33 (2021).
+  [doi:10.12688/f1000research.29032.2](https://doi.org/10.12688/f1000research.29032.2)
 
 If you use the bundled demo data or the T cell example, cite the paper the
 data come from, not this repository:

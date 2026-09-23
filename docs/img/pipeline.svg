@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 650" width="1000" height="650" role="img" aria-labelledby="t d">
+<title id="t">timecourse-patterns pipeline</title>
+<desc id="d">Metro map of the workflow. Over all samples: validate, prefilter, transform, QC. Per treatment arm: a DESeq2 test over time or variance ranking, two-gate selection, clustering with degPatterns or k-means, trajectory classes, figures, and in region mode BED export and annotation. Then a cross-arm comparison, an HTML report and a run manifest.</desc>
+<style>
+  :root { --main:#2563eb; --km:#ea580c; --sr:#16a34a; --reg:#9333ea; --qc:#64748b;
+          --ink:#1f2937; --muted:#6b7280; --fill:#ffffff; --box:#94a3b8; --card:#f8fafc; }
+  @media (prefers-color-scheme: dark) {
+    :root { --main:#60a5fa; --km:#fb923c; --sr:#4ade80; --reg:#c084fc; --qc:#94a3b8;
+            --ink:#e6edf3; --muted:#9ca3af; --fill:#0d1117; --box:#6e7681; --card:#161b22; }
+  }
+  text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; fill: var(--ink); }
+  .name { font-size: 15px; font-weight: 600; }
+  .tool { font-size: 13px; fill: var(--muted); }
+  .small { font-size: 13px; fill: var(--muted); }
+  .title { font-size: 24px; font-weight: 700; }
+  .sub { font-size: 14px; fill: var(--muted); }
+  .line { fill: none; stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; }
+  .main { stroke: var(--main); } .km { stroke: var(--km); } .sr { stroke: var(--sr); }
+  .reg { stroke: var(--reg); } .qc { stroke: var(--qc); }
+  .dash { stroke-dasharray: 2 11; }
+  .stn { fill: var(--fill); stroke-width: 4; }
+  .box { fill: none; stroke: var(--box); stroke-width: 1.5; stroke-dasharray: 6 5; }
+  .card { fill: var(--card); stroke: var(--box); stroke-width: 1.5; }
+</style>
+
+<text class="title" x="30" y="42">timecourse-patterns</text>
+<text class="sub" x="30" y="64">A Snakemake workflow built on DESeq2 and DEGreport</text>
+<rect class="box" x="530" y="82" width="440" height="503" rx="14"/>
+<text class="small" x="544" y="573">per treatment arm, each against the shared baseline</text>
+<rect class="card" x="30" y="88" width="150" height="36" rx="6"/>
+<text class="name" x="105.0" y="111.0" text-anchor="middle">samplesheet.tsv</text>
+<rect class="card" x="30" y="132" width="150" height="36" rx="6"/>
+<text class="name" x="105.0" y="155.0" text-anchor="middle">counts matrix</text>
+<rect class="card" x="30" y="176" width="150" height="36" rx="6" style="stroke-dasharray:5 4"/>
+<text class="name" x="105.0" y="199.0" text-anchor="middle">features.bed</text>
+<text class="small" x="105" y="230" text-anchor="middle">optional: region mode</text>
+<path class="line main" d="M180 106 C 205 106, 205 150, 233 150"/>
+<path class="line main" d="M180 150 L 245 150"/>
+<path class="line reg dash" d="M180 194 C 205 194, 205 150, 233 150"/>
+<path class="line qc" d="M455 150 C 455 285, 455 285, 385 285 L 300 285 C 240 285, 240 285, 240 378"/>
+<path class="line main" d="M245 150 L 910 150 C 960 150, 960 150, 960 200 L 960 350 C 960 400, 960 400, 910 400 L 290 400"/>
+<path class="line main" d="M410 400 C 370 400, 370 470, 330 470 L 290 470"/>
+<path class="line sr" d="M555 150 C 585 150, 585 225, 625 225 C 665 225, 665 150, 695 150"/>
+<path class="line km" d="M890 400 C 860 400, 860 325, 820 325 C 780 325, 780 400, 750 400"/>
+<path class="line reg" d="M680 400 C 680 500, 680 500, 740 500 L 890 500"/>
+<circle class="stn" cx="245" cy="150" r="10" style="stroke:var(--main)"/>
+<circle class="stn" cx="350" cy="150" r="10" style="stroke:var(--main)"/>
+<circle class="stn" cx="455" cy="150" r="10" style="stroke:var(--main)"/>
+<circle class="stn" cx="625" cy="150" r="10" style="stroke:var(--main)"/>
+<circle class="stn" cx="790" cy="150" r="10" style="stroke:var(--main)"/>
+<circle class="stn" cx="820" cy="400" r="10" style="stroke:var(--main)"/>
+<circle class="stn" cx="680" cy="400" r="10" style="stroke:var(--main)"/>
+<circle class="stn" cx="575" cy="400" r="10" style="stroke:var(--main)"/>
+<circle class="stn" cx="410" cy="400" r="10" style="stroke:var(--main)"/>
+<circle class="stn" cx="625" cy="225" r="10" style="stroke:var(--sr)"/>
+<circle class="stn" cx="820" cy="325" r="10" style="stroke:var(--km)"/>
+<circle class="stn" cx="330" cy="285" r="10" style="stroke:var(--qc)"/>
+<circle class="stn" cx="770" cy="500" r="10" style="stroke:var(--reg)"/>
+<circle class="stn" cx="890" cy="500" r="10" style="stroke:var(--reg)"/>
+<text class="name" x="245" y="112" text-anchor="middle">Validate</text>
+<text class="tool" x="245" y="130" text-anchor="middle">IDs, times</text>
+<text class="name" x="350" y="112" text-anchor="middle">Prefilter</text>
+<text class="tool" x="350" y="130" text-anchor="middle">low counts</text>
+<text class="name" x="455" y="112" text-anchor="middle">Transform</text>
+<text class="tool" x="455" y="130" text-anchor="middle">DESeq2 VST</text>
+<text class="name" x="625" y="112" text-anchor="middle">Test over time</text>
+<text class="tool" x="625" y="130" text-anchor="middle">DESeq2 LRT or Wald</text>
+<text class="name" x="625" y="259" text-anchor="middle">Variance ranking</text>
+<text class="tool" x="625" y="276" text-anchor="middle">single replicate</text>
+<text class="name" x="790" y="112" text-anchor="middle">Two-gate selection</text>
+<text class="tool" x="790" y="130" text-anchor="middle">FDR + min_range</text>
+<text class="name" x="330" y="319" text-anchor="middle">QC</text>
+<text class="tool" x="330" y="336" text-anchor="middle">PCA, correlations</text>
+<text class="name" x="820" y="287" text-anchor="middle">k-means</text>
+<text class="tool" x="820" y="305" text-anchor="middle">stats::kmeans</text>
+<text class="name" x="820" y="434" text-anchor="middle">Cluster</text>
+<text class="tool" x="820" y="451" text-anchor="middle">DEGreport degPatterns</text>
+<text class="name" x="680" y="362" text-anchor="middle">Trajectory classes</text>
+<text class="tool" x="680" y="380" text-anchor="middle">named by shape</text>
+<text class="name" x="575" y="434" text-anchor="middle">Figures</text>
+<text class="tool" x="575" y="451" text-anchor="middle">6 per arm</text>
+<text class="name" x="410" y="362" text-anchor="middle">Compare arms</text>
+<text class="tool" x="410" y="380" text-anchor="middle">cross-tab</text>
+<text class="name" x="770" y="534" text-anchor="middle">BED export</text>
+<text class="tool" x="770" y="551" text-anchor="middle">per class</text>
+<text class="name" x="890" y="534" text-anchor="middle">Annotation</text>
+<text class="tool" x="890" y="551" text-anchor="middle">TxDb, optional</text>
+<rect class="card" x="190" y="380" width="100" height="40" rx="6"/>
+<text class="name" x="240.0" y="405.0" text-anchor="middle">report</text>
+<text class="small" x="240" y="438" text-anchor="middle">HTML</text>
+<rect class="card" x="190" y="450" width="100" height="40" rx="6"/>
+<text class="name" x="240.0" y="475.0" text-anchor="middle">manifest</text>
+<text class="small" x="240" y="508" text-anchor="middle">JSON, every seed</text>
+<path class="line" style="stroke:var(--fill);stroke-width:2.5" transform="translate(500 150) rotate(0)" d="M-2 -3.5 L 2 0 L -2 3.5"/>
+<path class="line" style="stroke:var(--fill);stroke-width:2.5" transform="translate(960 275.0) rotate(90)" d="M-2 -3.5 L 2 0 L -2 3.5"/>
+<path class="line" style="stroke:var(--fill);stroke-width:2.5" transform="translate(490 400) rotate(180)" d="M-2 -3.5 L 2 0 L -2 3.5"/>
+<path class="line main" d="M30 625 L 60 625"/>
+<text class="small" x="70" y="630">default</text>
+<path class="line km" d="M143.0 625 L 173.0 625"/>
+<text class="small" x="183.0" y="630">cluster.method: kmeans</text>
+<path class="line sr" d="M361.0 625 L 391.0 625"/>
+<text class="small" x="401.0" y="630">differential.method: none</text>
+<path class="line reg" d="M600.0 625 L 630.0 625"/>
+<text class="small" x="640.0" y="630">region mode</text>
+<path class="line qc" d="M741.0 625 L 771.0 625"/>
+<text class="small" x="781.0" y="630">QC</text>
+</svg>

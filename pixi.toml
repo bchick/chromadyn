@@ -13,7 +13,7 @@
 [workspace]
 name = "timecourse-patterns"
 version = "0.1.0"
-description = "Temporal clustering of omics timecourses: dynamic features, named trajectory classes, publication figures"
+description = "Snakemake workflow: dynamic features in timecourse count data, clustered and named by trajectory shape"
 authors = ["Brent Chick <bchick@salk.edu>"]
 channels = ["conda-forge", "bioconda"]
 platforms = ["linux-64", "osx-arm64"]

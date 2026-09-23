@@ -1,5 +1,6 @@
 # ---------------------------------------------------------------------------
-# timecourse-patterns: temporal clustering of omics timecourses.
+# timecourse-patterns: a Snakemake workflow for clustering dynamic features
+# in timecourse count data.
 #
 # Reads a counts matrix and a samplesheet; returns dynamic features grouped
 # into named trajectory classes, with figures and an HTML report.
