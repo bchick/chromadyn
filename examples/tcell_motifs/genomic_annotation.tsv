@@ -1,0 +1,31 @@
+class	category	Freq	fraction
+Decreasing	Distal intergenic	4017	0.242279855247286
+Increasing-1	Distal intergenic	2068	0.25970111766922
+Increasing-2	Distal intergenic	2225	0.220777932129391
+Increasing-3	Distal intergenic	1273	0.141822638146168
+Static	Distal intergenic	4494	0.236091410559496
+Transient	Distal intergenic	2863	0.267945718296678
+Decreasing	Exon / UTR	985	0.0594089264173703
+Increasing-1	Exon / UTR	479	0.0601532085897275
+Increasing-2	Exon / UTR	514	0.0510021829728121
+Increasing-3	Exon / UTR	341	0.0379901960784314
+Static	Exon / UTR	1236	0.0649330181245075
+Transient	Exon / UTR	602	0.05634066448292
+Decreasing	Intronic	5132	0.309529553679131
+Increasing-1	Intronic	2726	0.342333291473063
+Increasing-2	Intronic	3003	0.297975788846993
+Increasing-3	Intronic	1608	0.179144385026738
+Static	Intronic	4801	0.252219595482007
+Transient	Intronic	3456	0.323444080486664
+Decreasing	Promoter (<=1 kb)	4235	0.255428226779252
+Increasing-1	Promoter (<=1 kb)	1565	0.196533969609444
+Increasing-2	Promoter (<=1 kb)	2977	0.295395911887279
+Increasing-3	Promoter (<=1 kb)	5045	0.562054367201426
+Static	Promoter (<=1 kb)	5723	0.300656685053848
+Transient	Promoter (<=1 kb)	2224	0.208142255498362
+Decreasing	Promoter flank (1-3 kb)	2211	0.13335343787696
+Increasing-1	Promoter flank (1-3 kb)	1125	0.141278412658546
+Increasing-2	Promoter flank (1-3 kb)	1359	0.134848184163525
+Increasing-3	Promoter flank (1-3 kb)	709	0.0789884135472371
+Static	Promoter flank (1-3 kb)	2781	0.146099290780142
+Transient	Promoter flank (1-3 kb)	1540	0.144127281235377

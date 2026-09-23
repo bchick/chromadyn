@@ -109,6 +109,20 @@ results/
 seed, `sessionInfo()` and SHA-256 checksums of the inputs. A result that cannot
 be traced to its parameters is not a result.
 
+## Example: trajectory classes carry biology
+
+Classes are defined from counts and timepoints alone, so a fair test is
+whether they also differ in things the clustering never saw. On the full T
+cell timecourse behind the demo (129,076 peaks, 54,282 dynamic), each class
+has its own genomic context and its own motif signature relative to static
+peaks. Decreasing peaks carry TCF7 and LEF1 motifs, Transient peaks carry AP-1
+and BATF, and Late Increasing peaks carry ETS factors.
+
+![Trajectory classes, genomic context and motif enrichment](docs/img/tcell_classes_overview.png)
+
+Scripts, tables and full reproduction steps are in
+[`examples/tcell_motifs/`](examples/tcell_motifs/README.md).
+
 ## How this differs from other tools
 
 **DiffBind** and **DESeq2** tell you *whether* a feature changed between

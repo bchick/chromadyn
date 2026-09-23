@@ -1,0 +1,22 @@
+# ---------------------------------------------------------------------------
+# chromadyn on the full WT T cell ATAC timecourse (all standard-chromosome
+# peaks). Identical to config/demo.yaml except for the inputs and output, so
+# any difference from the demo comes from the data, not the settings.
+#
+#   pixi run --frozen snakemake -j 8 \
+#       --configfile config/demo.yaml examples/tcell_motifs/config.yaml
+#
+# Both files after ONE --configfile flag, in that order. Repeating the flag
+# does not stack: the second occurrence replaces the first, and the demo
+# settings (time_unit, the tuned split.cross) silently fall away.
+# ---------------------------------------------------------------------------
+input:
+  samplesheet: examples/tcell_motifs/work/inputs/samplesheet.tsv
+  counts: examples/tcell_motifs/work/inputs/counts.tsv
+  features: examples/tcell_motifs/work/inputs/features.bed
+
+output:
+  dir: examples/tcell_motifs/work/results
+
+report:
+  title: "chromadyn: full WT CD8+ T cell ATAC timecourse (GSE228171)"
