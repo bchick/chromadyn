@@ -74,6 +74,7 @@ rule report:
         profiles=expand(P("cluster_profiles"), arm=ARMS),
         kdiag=expand(P("kdiag"), arm=ARMS),
         qc=expand(P("assignment_qc"), arm=ARMS),
+        selection=expand(P("cluster_selection"), arm=ARMS),
         figures=expand(P("fig_flag"), arm=ARMS),
     output:
         html=P("report"),

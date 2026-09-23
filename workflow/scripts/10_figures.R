@@ -16,7 +16,7 @@ if (!exists("snakemake")) {
     rule       = "figures",
     wildcards  = list(arm = "WT"),
     configfile = "config/demo.yaml",
-    input      = list(cluster_obj = "obj_degpatterns", fit = "obj_supercluster",
+    input      = list(cluster_obj = "obj_cluster", fit = "obj_supercluster",
                       results = "differential", transformed = "obj_transformed",
                       dds = "obj_dds"),
     output     = list(flag = "fig_flag"))

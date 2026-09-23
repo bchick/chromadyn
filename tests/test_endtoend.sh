@@ -68,8 +68,8 @@ for arm in $ARMS; do
     for f in "differential/${arm}_results.tsv.gz" \
              "clusters/${arm}_clusters.tsv" "clusters/${arm}_cluster_profiles.tsv" \
              "clusters/${arm}_supercluster_sizes.tsv" "clusters/${arm}_k_diagnostics.tsv" \
-             "clusters/${arm}_cluster_assignment_qc.tsv" \
-             "objects/${arm}_differential.rds" "objects/${arm}_degpatterns.rds"; do
+             "clusters/${arm}_cluster_assignment_qc.tsv" "clusters/${arm}_cluster_selection.tsv" \
+             "objects/${arm}_differential.rds" "objects/${arm}_cluster.rds"; do
         assert_file "$f" "$OUT/$f"
     done
     for fmt in pdf svg png; do
@@ -163,6 +163,36 @@ if "${RUN[@]}" snakemake --configfile "$CFG" -j 4 2>&1 | grep -q "Nothing to be 
     pass "second run is a no-op"
 else
     fail "second run did work; something is not declaring its outputs correctly"
+fi
+
+# ---------------------------------------------------------------------------
+group "The k-means clustering path"
+# ---------------------------------------------------------------------------
+# Up to the trajectory classes only: figures, export and report are shared
+# with the degPatterns path above and consume the same tables.
+KCFG="$SANDBOX/config_kmeans.yaml"
+KOUT="$SANDBOX/results_kmeans"
+sed "s#^  dir: results#  dir: $KOUT#" config/demo.yaml > "$KCFG"
+printf 'cluster:\n  method: kmeans\n' > "$SANDBOX/kmeans_overlay.yaml"
+if "${RUN[@]}" snakemake --configfile "$KCFG" "$SANDBOX/kmeans_overlay.yaml" -j 4 \
+        --until superclusters > "$SANDBOX/run_kmeans.log" 2>&1; then
+    pass "k-means run completed"
+    for arm in $ARMS; do
+        sel="$KOUT/clusters/${arm}_cluster_selection.tsv"
+        nsel=$(awk -F'\t' 'NR>1 && $NF=="TRUE"' "$sel" | wc -l)
+        k=$(awk -F'\t' 'NR>1 && $NF=="TRUE" {print $2}' "$sel")
+        assert_eq "exactly one selected k ($arm)" "$nsel" "1"
+        assert_eq "configured k used ($arm)" "$k" "10"
+        nsc=$(tail -n +2 "$KOUT/clusters/${arm}_clusters.tsv" | cut -f4 | sort -u | wc -l)
+        if (( nsc >= 2 && nsc <= 12 )); then
+            pass "k-means trajectory classes in range ($arm): $nsc"
+        else
+            fail "k-means trajectory classes out of range ($arm): $nsc"
+        fi
+    done
+else
+    fail "k-means run failed (see $SANDBOX/run_kmeans.log)"
+    tail -30 "$SANDBOX/run_kmeans.log"
 fi
 
 summary

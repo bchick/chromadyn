@@ -77,8 +77,10 @@ user with this design needs and will not find in other tools.
 
 ## Cluster first, then name
 
-timecourse-patterns clusters into however many groups the data supports, then collapses
-those into a few named classes. It does not cluster directly to k.
+timecourse-patterns clusters finely, into however many groups the data supports
+(`degPatterns`) or into more groups than you expect classes (k-means), then
+collapses those into a few named classes. It does not cluster directly to
+the number of classes.
 
 Clustering directly to five groups forces the answer. Clustering to the
 data's own granularity and then merging keeps the evidence: you can look at
@@ -191,6 +193,60 @@ result entirely. timecourse-patterns reports them as `Unassigned` with an
 `degPatterns` also overwrites its input rownames with `make.names()`, so
 `chr1:7401731-7402231` comes back as `chr1.7401731.7402231`. That is the
 origin of the corrupted-coordinate failure described below.
+
+## Choosing the clusterer
+
+`cluster.method` is `degpatterns` by default, so a run reproduces the source
+analysis. `kmeans` is the alternative. Both cluster the same thing, each
+feature's per-timepoint means z-scored across time, and both hand the same
+assignment table to the naming step, so everything after clustering is
+shared.
+
+On z-scored profiles, Euclidean distance is a monotone function of Pearson
+correlation, `d² = 2(T − 1)(1 − r)` for T timepoints. k-means therefore groups
+by the same notion of similar shape that `degPatterns` does. What differs is
+the algorithm: `degPatterns` cuts a divisive tree (`cluster::diana`) at a
+data-chosen height, while k-means partitions directly into k groups.
+
+Two reasons to prefer k-means:
+
+- **Scale.** k-means is linear in feature count and clusters every feature,
+  where `degPatterns` must subsample above `cluster.max_features`. The demo's
+  3,251 features take a few seconds across a whole sweep of k.
+- **Separating similar shapes.** On the simulated timecourse in the tier 3
+  test, k-means at the default k = 10 recovers all five simulated shapes
+  under their own names (adjusted Rand index 1.00 in both arms), where
+  `degPatterns` merges two pairs of strongly correlated shapes (ARI 0.73 and
+  0.72). The simulation is clean, so read this as "k-means is not worse",
+  not as a benchmark.
+
+The two do not agree closely on real data. On the demo the trajectory classes
+from k-means at k = 10 and from `degPatterns` have an ARI of 0.44, mostly
+because `degPatterns` puts 1,435 peaks in Decreasing where k-means splits some
+of them into Transient. Neither is ground truth; if a conclusion depends on
+which clusterer you chose, it is not a robust conclusion.
+
+k-means needs k. Because the naming step merges clusters into classes, k
+should be larger than the number of classes you expect. The alternative,
+`k: null`, picks the k with the highest mean silhouette width; on the demo
+that is k = 4, too coarse for this design, which is why it is not the
+default. The full silhouette sweep is written to
+`clusters/<arm>_cluster_selection.tsv` on every k-means run.
+
+### Why not a Gaussian mixture
+
+A Gaussian mixture (mclust) was tried and left out. Its selling points were
+choosing k by BIC and giving each feature a membership probability. The
+first does not survive contact with this representation.
+
+Z-scoring a feature across T timepoints fixes its length at `√(T − 1)`, so
+every profile lies on a sphere. A mixture of Gaussians cannot describe a
+sphere with a few components, so it tiles the surface, and BIC keeps
+improving as components are added. On the demo BIC was still rising at
+G = 20, and ICL at G = 16. Centring profiles without scaling gives BIC a real
+optimum, but then clusters split on amplitude as well as shape, which is a
+different question from the one this workflow asks. A mixture that respects
+the geometry, such as von Mises-Fisher, would be the principled fix.
 
 ## Guardrails
 

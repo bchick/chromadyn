@@ -121,6 +121,7 @@ later. The keys you are most likely to touch:
 | `differential.method` | `lrt` | `lrt`, `wald_union`, or `none` for single-replicate designs |
 | `differential.fdr` | 0.01 | Significance gate |
 | `differential.min_range` | 0.5 | Effect-size gate, on the **transformed** scale. Not a fold change. |
+| `cluster.method` | `degpatterns` | `degpatterns` as in the source analysis, or `kmeans` to cluster every feature without subsampling |
 | `cluster.degpatterns.minc` | 50 | Minimum cluster size; `auto` scales it to your feature count |
 | `cluster.max_features` | 6000 | Above this, subsample and assign the rest by correlation |
 | `superclusters.method` | `shape` | How clusters become named classes |

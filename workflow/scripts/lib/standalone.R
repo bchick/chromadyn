@@ -12,7 +12,7 @@
 #       wildcards = list(arm = "WT"),
 #       configfile = "config/demo.yaml",
 #       input     = list(transformed = "obj_transformed"),
-#       output    = list(clusters = "clusters", obj = "obj_degpatterns"))
+#       output    = list(clusters = "clusters", obj = "obj_cluster"))
 #   }
 #
 # `input` and `output` name keys from workflow/paths.yaml, resolved against the

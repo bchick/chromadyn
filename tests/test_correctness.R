@@ -3,6 +3,10 @@
 # Tier 3: does timecourse-patterns recover trajectory classes it has never seen?
 #
 #   Rscript tests/test_correctness.R
+#   CLUSTER_METHOD=kmeans Rscript tests/test_correctness.R
+#
+# CLUSTER_METHOD sets cluster.method (default degpatterns). The assertions are
+# the same for every method; each has its own golden table.
 #
 # Tiers 1 and 2 check that the pipeline runs and keeps reproducing itself.
 # Neither can tell you whether the answer is right, because neither knows what
@@ -147,7 +151,9 @@ finish <- function() {
   quit(status = as.integer(F > 0))
 }
 
-cat("timecourse-patterns tier 3: recovery of known trajectory classes\n")
+CLUSTER_METHOD <- Sys.getenv("CLUSTER_METHOD", "degpatterns")
+cat(sprintf("timecourse-patterns tier 3: recovery of known trajectory classes (cluster.method: %s)\n",
+            CLUSTER_METHOD))
 grp("Simulating")
 sim <- simulate(file.path(sandbox, "data"))
 cat(sprintf("  %d features (%d per dynamic shape, %d flat), %d libraries, %d timepoints\n",
@@ -164,6 +170,8 @@ writeLines(c(
   "  time_unit: min",
   "output:",
   sprintf("  dir: %s", file.path(sandbox, "results")),
+  "cluster:",
+  sprintf("  method: %s", CLUSTER_METHOD),
   "report:",
   "  title: \"timecourse-patterns tier 3\""
 ), cfg)
@@ -309,7 +317,8 @@ chk(sum(lib$group == "shared") == SIM$n_reps,
 grp("Golden summary")
 gold_dir <- file.path(REPO, "tests", "golden")
 dir.create(gold_dir, recursive = TRUE, showWarnings = FALSE)
-gold <- file.path(gold_dir, "tier3_recovery.tsv")
+gold <- file.path(gold_dir, if (CLUSTER_METHOD == "degpatterns") "tier3_recovery.tsv" else
+                  sprintf("tier3_recovery_%s.tsv", CLUSTER_METHOD))
 # Row names must be dropped before comparing. rbind() of the per-arm frames
 # produces names like "A.Decreasing", while the same table read back from TSV
 # is numbered 1..n, and all.equal() compares row names too: the golden would

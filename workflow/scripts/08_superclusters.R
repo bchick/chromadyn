@@ -21,7 +21,7 @@ if (!exists("snakemake")) {
     rule       = "superclusters",
     wildcards  = list(arm = "WT"),
     configfile = "config/demo.yaml",
-    input      = list(obj = "obj_degpatterns", features = "demo/features.bed"),
+    input      = list(obj = "obj_cluster", features = "demo/features.bed"),
     output     = list(clusters = "clusters", profiles = "cluster_profiles",
                       sizes = "supercluster_sizes", kdiag = "kdiag",
                       fit = "obj_supercluster"))

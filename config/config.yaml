@@ -96,7 +96,20 @@ differential:
   top_n: 5000
 
 cluster:
-  method: degpatterns       # degpatterns | kmeans | mclust
+  # How dynamic features are grouped by the shape of their trajectory. Both
+  # methods cluster the same representation: per-timepoint means, z-scored
+  # across timepoints for each feature.
+  #
+  # degpatterns  DEGreport::degPatterns, as in the source analysis. The
+  #              default, so results match the published method. Cost is cubic
+  #              in feature count; see max_features.
+  # kmeans       stats::kmeans. Linear in feature count, so it clusters every
+  #              feature without subsampling. See the kmeans block below.
+  #
+  # Both feed the same trajectory-class step, and the minimum cluster size
+  # (degpatterns.minc) applies to both. mclust is deliberately not offered:
+  # see "Why not a Gaussian mixture" in docs/method.md.
+  method: degpatterns
   seed: 42
 
   # Above this many features, cluster a stratified subsample and assign the
@@ -166,6 +179,25 @@ cluster:
     # Second grouping variable. null means each arm is clustered in its own
     # run; set it to a samplesheet column to fit arms jointly with a facet.
     col: null
+
+  kmeans:
+    # Number of clusters. The workflow clusters finely and then merges
+    # clusters into trajectory classes, so k should be larger than the number
+    # of classes you expect; the class step does the merging. null chooses k
+    # by the highest mean silhouette width in k_range instead, which tends to
+    # pick too few clusters for that design.
+    k: 10
+    # Every k in this range is fitted either way, and its silhouette written
+    # to clusters/{arm}_cluster_selection.tsv, so the choice can be checked.
+    k_range: [2, 15]
+    # Random starts per k. k-means finds a local optimum; more starts make the
+    # result depend less on the seed.
+    nstart: 25
+    iter_max: 100
+    # Silhouette needs all pairwise distances, so it is computed on a seeded
+    # random sample of at most this many features. The clustering itself
+    # always uses every feature.
+    silhouette_sample: 3000
 
 superclusters:
   # How degPatterns clusters are collapsed into named trajectory classes.

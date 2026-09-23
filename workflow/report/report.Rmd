@@ -39,13 +39,14 @@ cfg <- params$config
 knitr::kable(data.frame(
   setting = c("counts", "samplesheet", "features", "time unit", "arms",
               "transform", "differential", "FDR", "min_range",
-              "cluster minc", "supercluster method"),
+              "cluster method", "cluster minc", "supercluster method"),
   value = c(cfg$input$counts, cfg$input$samplesheet,
             if (is.null(cfg$input$features)) "none (gene mode)" else cfg$input$features,
             params$time_unit, paste(arms, collapse = ", "),
             cfg$transform$method, cfg$differential$method,
             cfg$differential$fdr, cfg$differential$min_range,
-            as.character(cfg$cluster$degpatterns$minc), cfg$superclusters$method)
+            cfg$cluster$method, as.character(cfg$cluster$degpatterns$minc),
+            cfg$superclusters$method)
 ))
 ```
 
@@ -133,6 +134,23 @@ Higher silhouette is better; the within-cluster sum of squares always falls
 with k, so look for where it stops falling steeply. These describe cutting
 the cluster dendrogram, which is a diagnostic here rather than the
 assignment mechanism unless `superclusters.method` is `hclust`.
+
+## Choosing the number of clusters
+
+```{r clusterselection}
+cs <- do.call(rbind, lapply(arms, function(a) {
+  d <- rd("clusters", paste0(a, "_cluster_selection.tsv"))
+  if (is.null(d)) NULL else cbind(arm = a, d)
+}))
+if (!is.null(cs)) {
+  knitr::kable(cs)
+}
+```
+
+How the cluster count was reached, which depends on `cluster.method`.
+degPatterns cuts its divisive tree itself, so there is one row per arm.
+k-means lists the mean silhouette width and within-cluster sum of squares of
+every k it tried. The row marked `selected` is the one that was used.
 
 ## Cluster assignment quality
 

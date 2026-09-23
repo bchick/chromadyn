@@ -28,7 +28,7 @@ ORDER <- c("Decreasing", "Transient", "Transient Increasing", "Late Increasing",
 relabel <- function(x) ifelse(x %in% names(RENAME), RENAME[x], x)
 
 fit <- readRDS(file.path(work, "results/objects/WT_supercluster_fit.rds"))
-cl <- readRDS(file.path(work, "results/objects/WT_degpatterns.rds"))
+cl <- readRDS(file.path(work, "results/objects/WT_cluster.rds"))
 a <- fit$assignment
 a$supercluster_label <- relabel(a$supercluster_label)
 pal <- supercluster_palette(ORDER)

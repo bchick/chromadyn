@@ -71,6 +71,37 @@ predict it. Setting `n_clusters` cuts at a fixed k instead.
 One caveat: `minc` is applied *after* the cut, and drops groups smaller than
 it. Asking for 5 can therefore give you 3. If that happens, lower `minc`.
 
+## `cluster.method` and the k-means `k`
+
+`degpatterns` (the default) or `kmeans`. See
+[method.md](method.md#choosing-the-clusterer) for how they differ.
+
+With `kmeans`, `cluster.kmeans.k` (default 10) is the number of clusters
+before they are merged into trajectory classes. Set it above the number of
+classes you expect: the naming step merges, it never splits. Too small and
+distinct shapes share a cluster whose mean profile names neither of them
+well; too large and clusters fall below `minc` and are dropped.
+
+Every k in `cluster.kmeans.k_range` is fitted either way, and
+`clusters/<arm>_cluster_selection.tsv` records each one's mean silhouette
+width and within-cluster sum of squares, with the one used marked
+`selected`. On the demo, abridged:
+
+```
+k   value   selected
+3   0.5344  FALSE
+4   0.5422  FALSE
+5   0.4982  FALSE
+...
+10  0.3813  TRUE
+```
+
+`k: null` uses the k with the best silhouette instead. Silhouette rewards a
+few well-separated groups, so it tends to choose fewer clusters than a
+cluster-then-merge design wants; on the demo it picks 4.
+
+`minc` applies to k-means too, to the final cluster sizes.
+
 ## `k`, the number of trajectory classes
 
 Only used when `superclusters.method` is `hclust` or `kmeans`. The default
@@ -117,6 +148,9 @@ The default cap is 6,000. Above it, timecourse-patterns clusters a stratified su
 with the recorded seed and assigns the remainder by correlation to cluster
 centroids, reporting both counts in
 `clusters/<arm>_cluster_assignment_qc.tsv`.
+
+`cluster.method: kmeans` avoids the problem: it clusters every feature, in
+seconds, with no subsample and no held-out assignment.
 
 The subsample path is not a large loss. Capping the demo at 1,500 recovered
 the same 8 clusters and assigned 1,750 of 1,751 held-out features. Raise the

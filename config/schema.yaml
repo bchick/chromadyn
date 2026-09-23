@@ -79,9 +79,9 @@ properties:
   cluster:
     type: object
     additionalProperties: false
-    required: [method, seed, max_features, assign_min_cor, degpatterns]
+    required: [method, seed, max_features, assign_min_cor, degpatterns, kmeans]
     properties:
-      method: {type: string, enum: [degpatterns, kmeans, mclust]}
+      method: {type: string, enum: [degpatterns, kmeans]}
       seed: {type: integer}
       max_features: {type: integer, minimum: 1}
       assign_min_cor: {type: number, minimum: -1, maximum: 1}
@@ -103,6 +103,20 @@ properties:
           skip_dendrogram: {type: boolean}
           scale: {type: boolean}
           col: {$ref: "#/definitions/nullableString"}
+      kmeans:
+        type: object
+        additionalProperties: false
+        required: [k, k_range, nstart, iter_max, silhouette_sample]
+        properties:
+          k: {$ref: "#/definitions/nullableInteger"}
+          k_range:
+            type: array
+            items: {type: integer, minimum: 2}
+            minItems: 2
+            maxItems: 2
+          nstart: {type: integer, minimum: 1}
+          iter_max: {type: integer, minimum: 1}
+          silhouette_sample: {type: integer, minimum: 100}
 
   superclusters:
     type: object

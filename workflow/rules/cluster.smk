@@ -6,9 +6,10 @@
 rule cluster:
     """Group dynamic features by trajectory shape, one run per arm.
 
-    Caches the full DEGreport object so that re-running superclusters,
-    annotation or figures never re-enters degPatterns, which is the expensive
-    step by a wide margin.
+    cluster.method picks degPatterns or k-means. Caches the result,
+    including the full DEGreport object when degPatterns ran, so that
+    re-running superclusters, annotation or figures never re-enters the
+    clusterer, which is the expensive step by a wide margin.
     """
     input:
         dds=P("obj_dds"),
@@ -16,8 +17,9 @@ rule cluster:
         diff_obj=P("obj_differential"),
         results=P("differential"),
     output:
-        obj=P("obj_degpatterns"),
+        obj=P("obj_cluster"),
         qc=P("assignment_qc"),
+        selection=P("cluster_selection"),
     log:
         f"{OUT}/logs/cluster_{{arm}}.log",
     conda:
@@ -34,7 +36,7 @@ rule superclusters:
     the cut that was not.
     """
     input:
-        obj=P("obj_degpatterns"),
+        obj=P("obj_cluster"),
         **({"features": config["input"]["features"]} if REGION_MODE else {}),
     output:
         clusters=P("clusters"),
@@ -58,7 +60,7 @@ rule figures:
     what was written.
     """
     input:
-        cluster_obj=P("obj_degpatterns"),
+        cluster_obj=P("obj_cluster"),
         fit=P("obj_supercluster"),
         results=P("differential"),
         transformed=P("obj_transformed"),

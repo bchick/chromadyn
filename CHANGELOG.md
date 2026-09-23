@@ -6,8 +6,25 @@ uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `cluster.method: kmeans`, a k-means alternative to `degPatterns` on the same
+  z-scored profiles. It clusters every feature without subsampling, at a
+  fixed `cluster.kmeans.k` (default 10) or the best silhouette in
+  `cluster.kmeans.k_range`.
+- `clusters/<arm>_cluster_selection.tsv`, recording how the cluster count was
+  reached, and a matching section in the report.
+- The tier 3 correctness test takes `CLUSTER_METHOD`, and tier 2 runs the
+  k-means path on the demo.
+
 ### Changed
 
+- `cluster.method` accepts `degpatterns` or `kmeans`. It previously also
+  listed `kmeans` and `mclust` in the schema without either being
+  implemented; `mclust` is removed, and `docs/method.md` explains why.
+- The cached clustering object is now `objects/<arm>_cluster.rds` (was
+  `<arm>_degpatterns.rds`), and the assignment QC metric
+  `degpatterns_seconds` is now `cluster_seconds`, with a new `k_selected`.
 - Renamed the project from `chromadyn` to `timecourse-patterns`, a name that
   says what the workflow does rather than suggesting a new tool. The GitHub
   repository moves with it; the old URL redirects.
