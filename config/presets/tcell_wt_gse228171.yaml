@@ -3,9 +3,9 @@
 #
 # The parameters used by the reanalysis project's own temporal clustering
 # (scripts/07_atac_temporal_clustering.R), recorded so that run can be
-# repeated here. These are NOT chromadyn's defaults, and the difference is
+# repeated here. These are NOT the workflow's defaults, and the difference is
 # the point: the original selected features by median absolute deviation and
-# clustered with reduce enabled, where chromadyn's default path is an LRT
+# clustered with reduce enabled, where the workflow's default path is an LRT
 # plus a range gate on the transformed scale.
 #
 # There is deliberately no automated fidelity test against that run. The two
@@ -44,4 +44,4 @@ superclusters:
     cross: -0.5                 # see config/demo.yaml for why this grid needs it
 
 report:
-  title: "chromadyn: CD8+ T cell ATAC timecourse (WT)"
+  title: "timecourse-patterns: CD8+ T cell ATAC timecourse (WT)"

@@ -4,6 +4,14 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
 uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- Renamed the project from `chromadyn` to `timecourse-patterns`, a name that
+  says what the workflow does rather than suggesting a new tool. The GitHub
+  repository moves with it; the old URL redirects.
+
 ## [0.1.0] - 2026-09-22
 
 First release. Extracts a temporal-clustering method from an MCF7
@@ -63,7 +71,7 @@ ATAC-seq analysis into a reusable, validated Snakemake workflow.
 
 - `cluster.degpatterns.cutoff` has no effect in any released DEGreport
   version. The key is kept so configs written against the original notebooks
-  parse, and chromadyn warns when it is set. See `docs/method.md`.
+  parse, and timecourse-patterns warns when it is set. See `docs/method.md`.
 - `degPatterns` chooses its own number of clusters and merges shapes whose
   z-scored profiles correlate strongly. `n_clusters` overrides the cut, but
   `minc` is applied afterwards and can reduce the result below what you asked

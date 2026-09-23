@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------
-# chromadyn environment.
+# timecourse-patterns environment.
 #
 # pixi is the primary route: it installs Snakemake itself, so neither snakemake
 # nor conda/mamba need to be on the user's PATH already. Specs here are loose;
@@ -11,7 +11,7 @@
 # resolves a single coherent Bioconductor set around it.
 # ---------------------------------------------------------------------------
 [workspace]
-name = "chromadyn"
+name = "timecourse-patterns"
 version = "0.1.0"
 description = "Temporal clustering of omics timecourses: dynamic features, named trajectory classes, publication figures"
 authors = ["Brent Chick <bchick@salk.edu>"]

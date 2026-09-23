@@ -14,7 +14,7 @@
 # data this analysis does not use; intronic and distal-intergenic peaks are
 # reported as putative distal regulatory elements, which is what they are.
 #
-# Needs ChIPseeker and txdbmaker (Bioconductor); not part of the chromadyn
+# Needs ChIPseeker and txdbmaker (Bioconductor); not part of the timecourse-patterns
 # environment, since this is a demonstration rather than a pipeline rule.
 # ---------------------------------------------------------------------------
 

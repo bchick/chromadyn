@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
-# chromadyn container.
+# timecourse-patterns container.
 #
-#   docker build -t chromadyn .
-#   docker run --rm -v "$PWD:/work" -w /work chromadyn \
+#   docker build -t timecourse-patterns .
+#   docker run --rm -v "$PWD:/work" -w /work timecourse-patterns \
 #       snakemake --configfile config/demo.yaml -j 4
 #
 # Built on the pixi image so the environment is exactly what pixi.lock pins:
@@ -11,7 +11,7 @@
 # ---------------------------------------------------------------------------
 FROM ghcr.io/prefix-dev/pixi:0.64.0 AS build
 
-WORKDIR /opt/chromadyn
+WORKDIR /opt/timecourse-patterns
 
 # Resolve the environment first, so a change to the workflow does not
 # invalidate the dependency layer.
@@ -34,13 +34,13 @@ RUN pixi shell-hook -e default > /shell-hook.sh && \
     echo 'exec "$@"' >> /shell-hook.sh
 
 FROM ghcr.io/prefix-dev/pixi:0.64.0 AS runtime
-WORKDIR /opt/chromadyn
-COPY --from=build /opt/chromadyn /opt/chromadyn
+WORKDIR /opt/timecourse-patterns
+COPY --from=build /opt/timecourse-patterns /opt/timecourse-patterns
 COPY --from=build /shell-hook.sh /shell-hook.sh
 
-LABEL org.opencontainers.image.title="chromadyn" \
+LABEL org.opencontainers.image.title="timecourse-patterns" \
       org.opencontainers.image.description="Temporal clustering of omics timecourses" \
-      org.opencontainers.image.source="https://github.com/bchick/chromadyn" \
+      org.opencontainers.image.source="https://github.com/bchick/timecourse-patterns" \
       org.opencontainers.image.licenses="MIT"
 
 ENTRYPOINT ["/bin/bash", "/shell-hook.sh"]

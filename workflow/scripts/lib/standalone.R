@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------
-# standalone.R: run any chromadyn script outside Snakemake, for debugging.
+# standalone.R: run any timecourse-patterns script outside Snakemake, for debugging.
 #
 # Snakemake injects an S4 `snakemake` object holding @input, @output, @params,
 # @wildcards, @config and @scriptdir. When you want to step through a script in

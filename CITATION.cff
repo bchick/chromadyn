@@ -1,6 +1,6 @@
 cff-version: 1.2.0
-message: "If you use chromadyn, please cite it using these metadata."
-title: "chromadyn: temporal clustering of omics timecourses"
+message: "If you use timecourse-patterns, please cite it using these metadata."
+title: "timecourse-patterns: temporal clustering of omics timecourses"
 abstract: >-
   A Snakemake workflow that takes a counts matrix and a samplesheet from a
   timecourse experiment and returns dynamic features grouped into named
@@ -13,7 +13,7 @@ authors:
     family-names: Chick
     affiliation: "Salk Institute for Biological Studies"
     email: bchick@salk.edu
-repository-code: "https://github.com/bchick/chromadyn"
+repository-code: "https://github.com/bchick/timecourse-patterns"
 license: MIT
 version: 0.1.0
 date-released: "2026-09-22"
@@ -42,4 +42,4 @@ references:
     doi: 10.1016/j.immuni.2023.05.005
     notes: >-
       Source of the bundled demo data (GEO GSE228171). Cite this, not
-      chromadyn, when using that data itself.
+      timecourse-patterns, when using that data itself.

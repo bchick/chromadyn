@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------
-# chromadyn: temporal clustering of omics timecourses.
+# timecourse-patterns: temporal clustering of omics timecourses.
 #
 # Reads a counts matrix and a samplesheet; returns dynamic features grouped
 # into named trajectory classes, with figures and an HTML report.

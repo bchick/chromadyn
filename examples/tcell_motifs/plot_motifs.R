@@ -19,7 +19,7 @@ odir <- if (length(args) >= 2) args[2] else "examples/tcell_motifs"
 TOP_PER_CLASS <- 6
 Q_MAX <- 1e-5
 
-# chromadyn's labels for this run, and the shape each actually has. The split
+# the workflow's labels for this run, and the shape each actually has. The split
 # named its three pieces numerically because two share a late rise and one is
 # not an increasing shape at all; see README.md for the profiles.
 LABELS <- c(

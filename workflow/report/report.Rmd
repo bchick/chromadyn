@@ -8,7 +8,7 @@ output:
     theme: flatly
     df_print: kable
 params:
-  title: "chromadyn results"
+  title: "timecourse-patterns results"
   results_dir: "results"
   arms: !r character()
   time_unit: "min"
@@ -29,7 +29,7 @@ fig <- function(name) {
 }
 ```
 
-chromadyn took a counts matrix over a timecourse and returned the features
+timecourse-patterns took a counts matrix over a timecourse and returned the features
 that change over time, grouped by the shape of that change.
 
 ## Inputs

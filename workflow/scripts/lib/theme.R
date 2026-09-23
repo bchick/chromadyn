@@ -1,5 +1,5 @@
 #===============================================================================
-# theme.R: the one place chromadyn defines how a figure looks.
+# theme.R: the one place timecourse-patterns defines how a figure looks.
 #===============================================================================
 # Ported from the source project's shared palette file, with its
 # dataset-specific palettes removed. What is kept is generic: the PRGn
@@ -442,7 +442,7 @@ supercluster_colors <- c(
 
 
 #===============================================================================
-# chromadyn additions
+# timecourse-patterns additions
 #===============================================================================
 
 # === Canonical supercluster display order ===

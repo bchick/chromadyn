@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 # ---------------------------------------------------------------------------
-# Tier 3: does chromadyn recover trajectory classes it has never seen?
+# Tier 3: does timecourse-patterns recover trajectory classes it has never seen?
 #
 #   Rscript tests/test_correctness.R
 #
@@ -134,7 +134,7 @@ adj_rand <- function(a, b) {
 # the session ends, and quit() does not run on.exit handlers, so a sandbox
 # placed there is gone before anyone can look at it. Cleanup is explicit,
 # in finish() below.
-sandbox <- file.path(dirname(tempdir()), sprintf("chromadyn-tier3-%d", Sys.getpid()))
+sandbox <- file.path(dirname(tempdir()), sprintf("timecourse-patterns-tier3-%d", Sys.getpid()))
 dir.create(sandbox, recursive = TRUE, showWarnings = FALSE)
 
 finish <- function() {
@@ -147,7 +147,7 @@ finish <- function() {
   quit(status = as.integer(F > 0))
 }
 
-cat("chromadyn tier 3: recovery of known trajectory classes\n")
+cat("timecourse-patterns tier 3: recovery of known trajectory classes\n")
 grp("Simulating")
 sim <- simulate(file.path(sandbox, "data"))
 cat(sprintf("  %d features (%d per dynamic shape, %d flat), %d libraries, %d timepoints\n",
@@ -165,7 +165,7 @@ writeLines(c(
   "output:",
   sprintf("  dir: %s", file.path(sandbox, "results")),
   "report:",
-  "  title: \"chromadyn tier 3\""
+  "  title: \"timecourse-patterns tier 3\""
 ), cfg)
 
 grp("Running the workflow")

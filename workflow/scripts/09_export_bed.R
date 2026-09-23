@@ -8,7 +8,7 @@
 # exported BED files were thousands of rows of
 # "chr1.7401731.7402231  NA  NA" and nobody noticed.
 #
-# chromadyn never parses an ID. Coordinates arrive as real columns from the
+# timecourse-patterns never parses an ID. Coordinates arrive as real columns from the
 # features BED and are asserted valid immediately before writing.
 # ---------------------------------------------------------------------------
 

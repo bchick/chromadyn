@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------------
 # common.R: config access, path resolution, IO, assertions and provenance.
 #
-# Sourced first by every chromadyn script. Everything a script needs to talk to
+# Sourced first by every timecourse-patterns script. Everything a script needs to talk to
 # the outside world lives here, so that the scripts themselves contain method
 # and nothing else.
 #
@@ -353,7 +353,7 @@ cd_init <- function(snakemake) {
   if (length(logfile) && nzchar(logfile)) {
     cd_mkdir(dirname(logfile))
     .CD$logfile <- logfile
-    cat(sprintf("# chromadyn %s, started %s\n", .CD$rule, format(Sys.time())),
+    cat(sprintf("# timecourse-patterns %s, started %s\n", .CD$rule, format(Sys.time())),
         file = logfile, append = FALSE)
     globalCallingHandlers(
       message = function(m) {
@@ -370,7 +370,7 @@ cd_init <- function(snakemake) {
   cd_assert(file.exists(paths_file), "workflow/paths.yaml not found at %s", paths_file)
   .CD$paths <- yaml::read_yaml(paths_file)
 
-  message(sprintf("[chromadyn] %s%s starting",
+  message(sprintf("[timecourse-patterns] %s%s starting",
                   .CD$rule,
                   if (!is.null(.CD$wildcards$arm)) paste0(" (", .CD$wildcards$arm, ")") else ""))
   invisible(TRUE)
@@ -394,7 +394,7 @@ cd_finish <- function() {
     r_version = R.version.string
   )
   writeLines(jsonlite::toJSON(payload, auto_unbox = TRUE, null = "null", pretty = TRUE), frag)
-  message(sprintf("[chromadyn] %s done in %.1fs", .CD$rule, payload$elapsed_sec))
+  message(sprintf("[timecourse-patterns] %s done in %.1fs", .CD$rule, payload$elapsed_sec))
   invisible(frag)
 }
 

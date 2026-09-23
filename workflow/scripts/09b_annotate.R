@@ -27,8 +27,9 @@ window <- cfg_req("annotate.tss_window")
 
 cd_assert(requireNamespace(txdb_name, quietly = TRUE),
           paste0("annotate.txdb is '%s' but that package is not installed. Annotation ",
-                 "packages are genome-specific and are deliberately not in the chromadyn ",
-                 "environment; install it, or set annotate.txdb: null to skip annotation."),
+                 "packages are genome-specific and are deliberately not in the ",
+                 "timecourse-patterns environment; install it, or set annotate.txdb: null ",
+                 "to skip annotation."),
           txdb_name)
 suppressPackageStartupMessages({
   library(GenomicRanges)

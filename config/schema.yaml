@@ -1,6 +1,6 @@
 $schema: "https://json-schema.org/draft/2020-12/schema"
 description: >
-  chromadyn configuration schema. Wired to Snakemake's validate() so a typo
+  timecourse-patterns configuration schema. Wired to Snakemake's validate() so a typo
   fails at parse time rather than three rules in. Every key in
   config/config.yaml appears here; tests/test_static.sh asserts that in both
   directions, so documentation cannot drift from validation.

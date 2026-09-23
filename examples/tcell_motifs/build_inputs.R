@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 # ---------------------------------------------------------------------------
-# build_inputs.R: the full WT T cell ATAC timecourse as chromadyn inputs.
+# build_inputs.R: the full WT T cell ATAC timecourse as timecourse-patterns inputs.
 #
 # Same source, libraries and conventions as demo/build_demo.R (see
 # demo/PROVENANCE.md), but every peak on a standard chromosome rather than a

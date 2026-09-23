@@ -43,7 +43,7 @@ reasonably make differently.
 the source has 15 WT libraries, across three sorted subsets (TE, EEC, MP) and
 two experiments, while Naive, D3 and D5 are unsorted total CD8. The source
 project's own temporal analysis pseudobulks across subsets by averaging
-variance-stabilized values. chromadyn starts from raw counts and does its own
+variance-stabilized values. timecourse-patterns starts from raw counts and does its own
 transform, so it cannot consume averaged values; rather than pool at count
 level, the demo takes the TE libraries as they are. They are the deepest TE
 set and they sit within a single experiment. D8 therefore has three replicates

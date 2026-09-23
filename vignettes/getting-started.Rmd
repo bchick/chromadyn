@@ -1,5 +1,5 @@
 ---
-title: "Getting started with chromadyn"
+title: "Getting started with timecourse-patterns"
 output:
   html_document:
     toc: true
@@ -113,7 +113,7 @@ sides.
 
 **`time` is numeric.** Put `4h` in `time_unit`, never in the column. A
 character time column sorts lexicographically to `0, 120, 15, 240, 30, 60` and
-turns every trajectory into noise; chromadyn asserts against this, but only
+turns every trajectory into noise; timecourse-patterns asserts against this, but only
 because it is the most destructive thing that can happen here.
 
 **Scale `minc` to your feature count.** The default 50 suits roughly 14,000

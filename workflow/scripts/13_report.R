@@ -24,7 +24,7 @@ out <- snakemake@output$html
 cd_mkdir(dirname(out))
 
 params <- list(
-  title = cfg("report.title", "chromadyn results"),
+  title = cfg("report.title", "timecourse-patterns results"),
   results_dir = normalizePath(cfg("output.dir"), mustWork = TRUE),
   arms = unlist(snakemake@params$arms),
   time_unit = cfg("input.time_unit"),
@@ -33,7 +33,7 @@ params <- list(
 
 # Knit in a temporary directory so that intermediates never land in results/
 # and a failed render cannot leave a half-written report behind.
-tmp <- tempfile("chromadyn-report-")
+tmp <- tempfile("timecourse-patterns-report-")
 dir.create(tmp)
 on.exit(unlink(tmp, recursive = TRUE), add = TRUE)
 

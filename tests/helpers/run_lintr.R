@@ -7,7 +7,7 @@
 # 29-space hanging indents in the standalone blocks, which would make them
 # unreadable).
 #
-# object_usage_linter is off. chromadyn is a script layout, not a package, so
+# object_usage_linter is off. timecourse-patterns is a script layout, not a package, so
 # lib/*.R files legitimately use symbols defined in a sibling file that the
 # calling script sources first (plots.R uses theme.R's palettes, for example).
 # lintr cannot follow a source() whose path is computed, so it reports every

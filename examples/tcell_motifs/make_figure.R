@@ -2,7 +2,7 @@
 # ---------------------------------------------------------------------------
 # make_figure.R: one figure, three independent views of each trajectory class.
 #
-#   A  the trajectory itself (chromadyn's ribbon panel)
+#   A  the trajectory itself (the ribbon panel)
 #   B  where in the genome the class sits, against static peaks
 #   C  which known motifs are enriched in it, against static peaks
 #

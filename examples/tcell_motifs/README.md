@@ -1,6 +1,6 @@
 # Example: are trajectory classes biology?
 
-chromadyn defines trajectory classes from counts and timepoints alone. This
+timecourse-patterns defines trajectory classes from counts and timepoints alone. This
 example asks whether those classes also differ in things the clustering never
 saw: where in the genome they sit, and which transcription factor motifs they
 carry. If they do, the classes reflect regulatory programs rather than an
@@ -39,7 +39,7 @@ Cite that paper, not this repository, when you use these data.
 This is the same timecourse as the bundled demo, with the same nine libraries
 and design (see [`demo/PROVENANCE.md`](../../demo/PROVENANCE.md)). The
 difference is that it uses every consensus peak on a standard chromosome
-(129,076) instead of a 5,000-peak subsample. chromadyn runs with the demo
+(129,076) instead of a 5,000-peak subsample. timecourse-patterns runs with the demo
 settings unchanged, so any difference from the demo comes from the data.
 
 Of the 73,528 peaks that pass the count prefilter, it calls 54,493 dynamic
@@ -48,7 +48,7 @@ below and 211 are left unassigned. The `Increasing` class is
 split in three, and the split names its pieces numerically. They are renamed
 here by the shape they actually have:
 
-| chromadyn label | Shape | Peaks |
+| timecourse-patterns label | Shape | Peaks |
 |---|---|---|
 | Decreasing | Decreasing | 16,580 |
 | Transient | Transient | 10,685 |
@@ -101,7 +101,7 @@ per class) and [`genomic_annotation.tsv`](genomic_annotation.tsv).
 
 ## Reproducing
 
-Run everything from the repository root. Beyond the chromadyn environment, the
+Run everything from the repository root. Beyond the timecourse-patterns environment, the
 example needs bedtools, samtools, the MEME suite, and the Bioconductor
 packages ChIPseeker and txdbmaker.
 

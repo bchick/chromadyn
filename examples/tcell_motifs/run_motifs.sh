@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ---------------------------------------------------------------------------
-# run_motifs.sh: known-motif enrichment per chromadyn trajectory class.
+# run_motifs.sh: known-motif enrichment per timecourse-patterns trajectory class.
 #
 #   bash examples/tcell_motifs/run_motifs.sh [results_dir] [genome.fa] [motifs.meme]
 #

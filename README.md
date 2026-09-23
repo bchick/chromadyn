@@ -1,4 +1,4 @@
-# chromadyn
+# timecourse-patterns
 
 **Temporal clustering of omics timecourses.** Give it a counts matrix and a
 samplesheet; get back the features that change over time, grouped into
@@ -6,7 +6,7 @@ trajectory classes, with publication figures and an HTML report.
 
 ![Trajectory classes recovered from an ATAC-seq timecourse of antiviral CD8+ T cells](docs/img/supercluster_ribbon.png)
 
-*Trajectory classes that chromadyn recovers from ATAC-seq of antiviral CD8+ T
+*Trajectory classes that timecourse-patterns recovers from ATAC-seq of antiviral CD8+ T
 cells in mice infected with LCMV Armstrong, sampled from naive (day 0) to day
 8 post infection. Each panel is one class: the line is the class mean
 accessibility (z-score) and the bands show its spread across peaks. Data from
@@ -15,8 +15,8 @@ McDonald, Chick et al., Immunity 2023 ([details](#demo-data)).*
 ## Quickstart
 
 ```bash
-git clone https://github.com/bchick/chromadyn
-cd chromadyn
+git clone https://github.com/bchick/timecourse-patterns
+cd timecourse-patterns
 pixi install
 pixi run demo          # about 2 minutes, writes results/report.html
 ```
@@ -58,7 +58,7 @@ Which libraries were used, and why, is documented in
 
 ## What it does
 
-chromadyn answers one question: **given counts over a timecourse, which
+timecourse-patterns answers one question: **given counts over a timecourse, which
 features change over time, and what distinct shapes do those changes take?**
 
 It starts at a counts matrix and never touches FASTQ, BAM or peak calling, so
@@ -106,7 +106,7 @@ never a silent subset.
 
 BED3 or BED6 mapping to the counts row names. Supplying it switches on region
 mode: BED export per trajectory class, and genomic annotation if you configure
-a TxDb. Without it, chromadyn runs in gene mode.
+a TxDb. Without it, timecourse-patterns runs in gene mode.
 
 ## Configuration
 
@@ -150,7 +150,7 @@ be traced to its parameters is not a result.
 
 Classes are defined from counts and timepoints alone, so a fair test is
 whether they also differ in things the clustering never saw. This example runs
-chromadyn on every peak of the timecourse behind the demo: ATAC-seq of CD8+ T
+timecourse-patterns on every peak of the timecourse behind the demo: ATAC-seq of CD8+ T
 cells in LCMV Armstrong infected mice, naive through day 8 post infection
 (129,076 peaks, 54,493 of them dynamic). Each class has its own genomic
 context and its own motif signature compared with static peaks.
@@ -175,29 +175,29 @@ Scripts, tables and full reproduction steps are in
 ## How this differs from other tools
 
 **DiffBind** and **DESeq2** tell you *whether* a feature changed between
-conditions. chromadyn starts from that question already answered and asks what
+conditions. timecourse-patterns starts from that question already answered and asks what
 *shape* the change has across the whole timecourse. It uses DESeq2 internally
 for exactly that first step.
 
 **Mfuzz** does soft clustering of expression timecourses and is a good tool. It
 gives you numbered clusters and leaves both the choice of *c* and the
-interpretation of each cluster to you. chromadyn's contribution is the layer
+interpretation of each cluster to you. The workflow's contribution is the layer
 above: collapsing clusters into a small number of named classes by a stated
 rule, with the diagnostics to check the rule.
 
 **ImpulseDE2** and **maSigPro** fit parametric models of expression over time,
-impulse and polynomial respectively. They are more powerful than chromadyn when
+impulse and polynomial respectively. They are more powerful than timecourse-patterns when
 your trajectories really do follow that functional form, and they answer a
 different question: model fit and significance rather than shape taxonomy. If
 you want to know "is this gene transiently induced", they are the better tool.
 If you want to know "how many distinct temporal programs are in this dataset,
-and which features belong to each", chromadyn is aimed at that.
+and which features belong to each", timecourse-patterns is aimed at that.
 
 **Tempora** and other trajectory-inference methods order *cells* along a
-pseudotime. chromadyn works on bulk timecourses with real sampled timepoints
+pseudotime. timecourse-patterns works on bulk timecourses with real sampled timepoints
 and does not infer an ordering; you tell it the times.
 
-What chromadyn adds that none of the above provides directly: the shared
+What timecourse-patterns adds that none of the above provides directly: the shared
 baseline across arms, the second effect-size gate, automated naming of
 trajectory classes, and a reproducibility record.
 
@@ -235,7 +235,7 @@ Tier 3 simulates counts from five known shapes and checks what comes back.
 
 ## Citation
 
-To cite chromadyn itself, see [`CITATION.cff`](CITATION.cff).
+To cite timecourse-patterns itself, see [`CITATION.cff`](CITATION.cff).
 
 If you use the bundled demo data or the T cell example, cite the paper the
 data come from, not this repository:

@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------
-# Every output path chromadyn writes, as a template.
+# Every output path timecourse-patterns writes, as a template.
 #
 # The Snakefile reads this with yaml.safe_load and R reads it with
 # yaml::read_yaml, so a path is defined once and cannot drift between the rule

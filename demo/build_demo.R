@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 # ---------------------------------------------------------------------------
-# build_demo.R: derive the bundled chromadyn demo from the published T cell
+# build_demo.R: derive the bundled timecourse-patterns demo from the published T cell
 # ATAC timecourse.
 #
 # Source data: McDonald, Chick et al., Immunity 56(6):1303-1319.e5 (2023),

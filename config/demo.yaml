@@ -17,7 +17,7 @@ output:
   dir: results
 
 report:
-  title: "chromadyn demo: CD8+ T cell ATAC timecourse (GSE228171)"
+  title: "timecourse-patterns demo: CD8+ T cell ATAC timecourse (GSE228171)"
 
 superclusters:
   split:

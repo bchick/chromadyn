@@ -2,7 +2,7 @@
 
 **Does it work on RNA-seq?**
 
-Yes. chromadyn is assay-agnostic; it starts at a counts matrix and does not
+Yes. timecourse-patterns is assay-agnostic; it starts at a counts matrix and does not
 care what the rows are. Leave `input.features` null for gene mode, and the
 region-only rules are skipped. Genes are usually fewer than peaks, so use
 `minc: auto`.
@@ -43,7 +43,7 @@ shapes; see [troubleshooting.md](troubleshooting.md).
 **Can I reproduce an old hand-made cluster assignment?**
 
 Yes, with `superclusters.method: overrides` and a `{cluster_id: name}` map.
-chromadyn fails if the map misses any cluster, naming the ones it missed.
+timecourse-patterns fails if the map misses any cluster, naming the ones it missed.
 
 One caveat that matters: cluster IDs are meaningful only within a single run
 over a single feature set. A map from one run cannot be applied to another
@@ -63,7 +63,7 @@ pixi.
 
 **Why is `cutoff` in the config if it does nothing?**
 
-So configs written against the original notebooks still parse. chromadyn warns
+So configs written against the original notebooks still parse. timecourse-patterns warns
 if you set it. See [method.md](method.md#notes-on-degreport).
 
 **Can I add my own trajectory vocabulary?**

@@ -29,7 +29,7 @@ group "Workflow parses"
 # Snakemake does not schedule jobs whose outputs are present and so never
 # checks their inputs: a missing input can pass here and fail on a clean CI
 # runner, which is exactly what happened once.
-DRY="$(mktemp -d "${TMPDIR:-/tmp}/chromadyn-dry-XXXXXX")"
+DRY="$(mktemp -d "${TMPDIR:-/tmp}/timecourse-patterns-dry-XXXXXX")"
 trap 'rm -rf "$DRY"' EXIT
 printf "output:\n  dir: %s/demo\n" "$DRY" > "$DRY/demo_out.yaml"
 py tests/helpers/merge_config.py config/demo.yaml "$DRY/demo_out.yaml" > "$DRY/demo.yaml"

@@ -11,7 +11,7 @@
 # "there is no package called 'GenomeInfoDbData'".
 #
 # Rather than ask every user to flip pixi's run-post-link-scripts setting to
-# `insecure`, chromadyn runs the specific scripts it needs, here, where they
+# `insecure`, timecourse-patterns runs the specific scripts it needs, here, where they
 # are visible and auditable. The pixi tasks that need R depend on this one.
 #
 # Idempotent: exits immediately once the packages load.

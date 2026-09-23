@@ -20,7 +20,7 @@ if [[ -n "${CONDA_PREFIX:-}" && -x "${CONDA_PREFIX}/bin/Rscript" ]]; then
     RUN=(); else RUN=(pixi run --frozen)
 fi
 
-SANDBOX="$(mktemp -d "${TMPDIR:-/tmp}/chromadyn-paths-XXXXXX")"
+SANDBOX="$(mktemp -d "${TMPDIR:-/tmp}/timecourse-patterns-paths-XXXXXX")"
 cleanup() {
     if [[ "${KEEP_SANDBOX:-0}" == "1" ]] || (( FAIL > 0 )); then
         printf "\nSandbox kept: %s\n" "$SANDBOX"

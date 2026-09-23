@@ -20,7 +20,7 @@ if [[ -n "${CONDA_PREFIX:-}" && -x "${CONDA_PREFIX}/bin/Rscript" ]]; then
     RUN=(); else RUN=(pixi run --frozen)
 fi
 
-SANDBOX="$(mktemp -d "${TMPDIR:-/tmp}/chromadyn-e2e-XXXXXX")"
+SANDBOX="$(mktemp -d "${TMPDIR:-/tmp}/timecourse-patterns-e2e-XXXXXX")"
 CFG="$SANDBOX/config.yaml"
 OUT="$SANDBOX/results"
 GOLDEN="$REPO_ROOT/tests/golden"

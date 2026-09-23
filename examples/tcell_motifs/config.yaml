@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------
-# chromadyn on the full WT T cell ATAC timecourse (all standard-chromosome
+# timecourse-patterns on the full WT T cell ATAC timecourse (all standard-chromosome
 # peaks). Identical to config/demo.yaml except for the inputs and output, so
 # any difference from the demo comes from the data, not the settings.
 #
@@ -19,4 +19,4 @@ output:
   dir: examples/tcell_motifs/work/results
 
 report:
-  title: "chromadyn: full WT CD8+ T cell ATAC timecourse (GSE228171)"
+  title: "timecourse-patterns: full WT CD8+ T cell ATAC timecourse (GSE228171)"

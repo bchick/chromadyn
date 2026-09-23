@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------
-# chromadyn configuration. Every threshold in the pipeline appears here.
+# timecourse-patterns configuration. Every threshold in the pipeline appears here.
 #
 # No script may contain a bare numeric threshold; tests/test_static.sh enforces
 # that. If you find yourself wanting to tweak a number in an R file, the number
@@ -134,14 +134,14 @@ cluster:
     # the argument and never uses it, and .reduce() does not accept it at all.
     # Verified identical in DEGreport 1.36.0 and 1.42.0. Setting it changes
     # nothing, and the original analyses that set it were unaffected by it.
-    # chromadyn warns at runtime if you set it away from this default.
+    # timecourse-patterns warns at runtime if you set it away from this default.
     #
     # To actually control cluster count, use n_clusters below.
     cutoff: 0.5
 
     # Number of clusters to cut the tree into. null lets DEGreport cut at the
     # diana divisive coefficient, which is what the source analyses did and is
-    # therefore the default. Requires DEGreport >= 1.40; chromadyn fails with a
+    # therefore the default. Requires DEGreport >= 1.40; timecourse-patterns fails with a
     # clear message if you set it on an older version.
     n_clusters: null
 
@@ -156,7 +156,7 @@ cluster:
 
     # degPatterns >= 1.40 skips building the display dendrogram by default.
     # Set false only if you want deg$hr populated for your own plotting;
-    # chromadyn draws its own dendrogram from cluster profiles regardless.
+    # timecourse-patterns draws its own dendrogram from cluster profiles regardless.
     skip_dendrogram: true
 
     # degPatterns z-scores internally. Leave true and do not pre-scale the
@@ -250,4 +250,4 @@ figures:
   dpi: 288
 
 report:
-  title: "chromadyn results"
+  title: "timecourse-patterns results"

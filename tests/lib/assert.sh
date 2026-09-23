@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------
-# assert.sh: shared assertion helpers for the chromadyn test tiers.
+# assert.sh: shared assertion helpers for the timecourse-patterns test tiers.
 #
 # Source this, do not execute it. It sets up:
 #   - `set -uo pipefail`, deliberately WITHOUT -e, so a failing assertion is

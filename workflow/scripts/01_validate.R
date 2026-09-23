@@ -47,7 +47,7 @@ only_cts <- setdiff(colnames(cts), ss$sample)
 if (length(only_ss) || length(only_cts)) {
   fail("sample_match",
        paste0("samplesheet and counts columns disagree. In samplesheet only: %s. ",
-              "In counts only: %s. Sample IDs must match exactly; chromadyn will not ",
+              "In counts only: %s. Sample IDs must match exactly; timecourse-patterns will not ",
               "guess a mapping or quietly analyse a subset."),
        if (length(only_ss)) paste(only_ss, collapse = ", ") else "(none)",
        if (length(only_cts)) paste(only_cts, collapse = ", ") else "(none)")
@@ -148,7 +148,7 @@ for (arm in arms) {
 
 # --- counts sanity ----------------------------------------------------------
 if (anyNA(cts)) {
-  fail("counts_na", "counts contain %d NA value(s). chromadyn will not impute them.",
+  fail("counts_na", "counts contain %d NA value(s). timecourse-patterns will not impute them.",
        sum(is.na(cts)))
 } else {
   pass("counts_na", "no NA values in counts")

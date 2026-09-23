@@ -58,7 +58,7 @@ if (dir.exists(frag_dir)) {
 seeds <- Filter(length, lapply(frags, function(x) x$seeds))
 
 manifest <- list(
-  tool = list(name = "chromadyn", version = "0.1.0"),
+  tool = list(name = "timecourse-patterns", version = "0.1.0"),
   generated = format(Sys.time(), "%Y-%m-%dT%H:%M:%S%z"),
   config = snakemake@config,
   inputs = input_info,

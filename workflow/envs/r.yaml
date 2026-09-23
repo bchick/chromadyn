@@ -4,7 +4,7 @@
 # exists so that `snakemake --use-conda` works for users on HPC who already
 # have conda and do not want a second package manager. Keep the package list
 # in step with pixi.toml.
-name: chromadyn-r
+name: timecourse-patterns-r
 channels:
   - conda-forge
   - bioconda

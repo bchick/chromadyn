@@ -1,5 +1,5 @@
 ---
-title: "chromadyn on a public GEO timecourse"
+title: "timecourse-patterns on a public GEO timecourse"
 output:
   html_document:
     toc: true
@@ -10,7 +10,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
 ```
 
-Running chromadyn on data you download yourself, in gene mode, on an RNA-seq
+Running timecourse-patterns on data you download yourself, in gene mode, on an RNA-seq
 series rather than ATAC.
 
 **Series:** [GSE227634](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE227634),
@@ -32,7 +32,7 @@ the merge step depends on decisions about the sample naming in the deposit
 that are better made by someone looking at the data than baked in here. The
 code is written out in full and the commands to validate it are given.
 
-**This series has three timepoints, not four.** chromadyn warns about that at
+**This series has three timepoints, not four.** timecourse-patterns warns about that at
 validation, and it is worth seeing why: with three points a transient rise
 and a late rise cannot be told apart, so the split stage has little to work
 with and you should expect coarse classes. It is a good illustration of the
@@ -139,7 +139,7 @@ cluster:
     minc: auto                # genes are fewer than peaks; 50 would be too high
 
 report:
-  title: "chromadyn: GSE227634 CD8+ T cell RNA timecourse"
+  title: "timecourse-patterns: GSE227634 CD8+ T cell RNA timecourse"
 ```
 
 ## Run

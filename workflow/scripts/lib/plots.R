@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------
-# plots.R: every figure chromadyn draws.
+# plots.R: every figure timecourse-patterns draws.
 #
 # These exist as functions because in the source project each one was written
 # inline, two or three times, in different notebooks, and the copies drifted.

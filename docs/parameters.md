@@ -26,14 +26,14 @@ with how many features reach the clusterer.
 **Scale it with the number of features being clustered, not with the input.**
 50 is a sensible floor when ~14,000 features reach the clusterer. On 2,000 it
 means a cluster must hold 2.5% of your data to survive, which is far too
-aggressive, and chromadyn fails at validation rather than let you find out
+aggressive, and timecourse-patterns fails at validation rather than let you find out
 from a suspiciously short cluster list.
 
 `minc: auto` sets `max(15, round(nrow / 100))`, roughly 1% of the clustered
 features. Use it unless you have a reason not to.
 
 Remember that DEGreport **drops** the members of undersized clusters; it does
-not merge them elsewhere. chromadyn reports them as `Unassigned` in the
+not merge them elsewhere. timecourse-patterns reports them as `Unassigned` in the
 cluster table, with `assign_method` saying why. If that count is large, `minc`
 is too high.
 
@@ -50,7 +50,7 @@ features each gate passes separately.
 ```
 
 If the range count is much larger than the significance count, the gate is not
-constraining anything and chromadyn says so explicitly. Raise it until it
+constraining anything and timecourse-patterns says so explicitly. Raise it until it
 starts removing features that the test called significant but whose
 trajectories are flat when you plot them.
 
@@ -113,7 +113,7 @@ That fits `n^3.06`, which extrapolates to:
 | 12,000 | ~1 hour |
 | 30,000 | ~18 hours |
 
-The default cap is 6,000. Above it, chromadyn clusters a stratified subsample
+The default cap is 6,000. Above it, timecourse-patterns clusters a stratified subsample
 with the recorded seed and assigns the remainder by correlation to cluster
 centroids, reporting both counts in
 `clusters/<arm>_cluster_assignment_qc.tsv`.
@@ -167,7 +167,7 @@ statistics; usually `cross` is the knob.
 
 ## Single-replicate timecourses
 
-`DESeq(test = "LRT")` over `~ time` needs replication. chromadyn detects a
+`DESeq(test = "LRT")` over `~ time` needs replication. timecourse-patterns detects a
 design with one library per timepoint at validation and fails the `lrt` path
 with a message pointing at the supported alternative:
 
@@ -183,7 +183,7 @@ No significance is claimed, and none should be reported.
 
 ## Number of timepoints
 
-Three is the minimum for a shape to exist, and chromadyn warns at three: the
+Three is the minimum for a shape to exist, and timecourse-patterns warns at three: the
 transient and late classes cannot separate cleanly. Four works, as the demo
 shows. Five or more is comfortable.
 

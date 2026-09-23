@@ -7,14 +7,14 @@
 # BiocGenerics::paste, and so on. None of it errors; the code just starts
 # doing something else. DEGreport pulls several of these in at once.
 #
-# Sourced by every chromadyn script, immediately after lib/common.R.
+# Sourced by every timecourse-patterns script, immediately after lib/common.R.
 #
 # Assignment MUST be into .GlobalEnv. A plain `<-` inside this file's own
 # evaluation frame, or sourcing this file from inside a function, does not
 # propagate to the calling script.
 #
 # Ported from mcf7_project/scripts/rmd_setup.R, which already covered a
-# superset of the functions listed in the chromadyn specification.
+# superset of the functions listed in the timecourse-patterns specification.
 # ---------------------------------------------------------------------------
 
 local({

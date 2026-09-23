@@ -11,7 +11,7 @@ written to `results/qc/validation_report.tsv` with a status and a message.
 
 ### "samplesheet and counts columns disagree"
 
-Sample IDs must match counts column names **exactly**. chromadyn prints which
+Sample IDs must match counts column names **exactly**. timecourse-patterns prints which
 IDs are on each side and will not guess a mapping or quietly analyse a subset.
 
 Most often this is a suffix the quantifier left on. nf-core/atacseq, for
@@ -62,9 +62,9 @@ Almost always the time-ordering trap. If your time column is character,
 0, 120, 15, 240, 30, 60
 ```
 
-Every profile is then reordered into nonsense and nothing errors. chromadyn
+Every profile is then reordered into nonsense and nothing errors. timecourse-patterns
 asserts numeric, increasing factor levels at validation and again wherever a
-time factor is built, so if you are seeing this with chromadyn, check that the
+time factor is built, so if you are seeing this with timecourse-patterns, check that the
 figure you are looking at came from this pipeline.
 
 Second possibility: replicates that do not agree. Look at
@@ -83,7 +83,7 @@ reports each gate separately:
 [select_dynamic] arm 'WT': padj < 0.01 -> 3466 | range >= 0.5 -> 3253 | both -> 3251
 ```
 
-If the range count is nearly your whole matrix, raise `min_range`. chromadyn
+If the range count is nearly your whole matrix, raise `min_range`. timecourse-patterns
 prints an explicit note when the range gate removes nothing at all.
 
 ## Nothing is called dynamic
@@ -96,7 +96,7 @@ PCA first: a timecourse with no structure has nothing to find.
 
 `degPatterns` cost is **cubic** in feature count: about 72 s at 3,251
 features, an hour at 12,000, and roughly 18 hours at 30,000. The default
-`cluster.max_features: 6000` caps it; above that chromadyn subsamples and
+`cluster.max_features: 6000` caps it; above that timecourse-patterns subsamples and
 assigns the remainder by correlation. Lower the cap while iterating. See
 [parameters.md](parameters.md#clustermax_features-and-runtime).
 
@@ -123,7 +123,7 @@ are willing to place weakly matching features.
 
 ## The BED files have NA coordinates
 
-They should not, and chromadyn asserts against exactly this immediately before
+They should not, and timecourse-patterns asserts against exactly this immediately before
 writing each file, because the source analysis shipped thousands of rows of
 `chr1.7401731.7402231  NA  NA` without noticing.
 
@@ -154,7 +154,7 @@ To rerun on timestamps only, add `--rerun-triggers mtime`.
 ## The log files are empty
 
 They should not be. Snakemake only redirects output into `log:` for `shell:`
-directives, not `script:`, so chromadyn tees messages itself. If a log is
+directives, not `script:`, so timecourse-patterns tees messages itself. If a log is
 empty the script probably failed before `cd_init()`; the error will be on the
 console and in the Snakemake log under `.snakemake/log/`.
 
