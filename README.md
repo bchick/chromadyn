@@ -1,15 +1,7 @@
 # timecourse-patterns
 
 **A Snakemake workflow for finding the features that change over a
-timecourse and grouping them by the shape of their change.** It chains
-established tools, DESeq2 for the test over time and DEGreport's
-`degPatterns` (or k-means) for clustering, and adds the steps around them
-that the source analysis did by hand: an effect-size gate, automated naming
-of trajectory classes, figures, an HTML report and a full provenance record.
-
-It is a workflow, not a new statistical method. The clustering is the one
-used in the source analysis; see [`docs/method.md`](docs/method.md) for what
-was kept, what was changed and why.
+timecourse and grouping them by the shape of their change.** 
 
 ![Trajectory classes recovered from an ATAC-seq timecourse of antiviral CD8+ T cells](docs/img/supercluster_ribbon.png)
 
